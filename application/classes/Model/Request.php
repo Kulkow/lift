@@ -53,6 +53,7 @@ class Model_Request extends ORM {
     
     public function filter(array $filters = array()){
         $this->created = time();
+        $this->ip = Request::$client_ip;
 		return parent::filter($filters);
 	}
     

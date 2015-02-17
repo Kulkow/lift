@@ -1,12 +1,17 @@
 
  var It_lift = {status:'free',
-                options:{}
- }
- It_lift.open = function(){
-    var self = $(this);
-    self.addClass('open');
-    self.animate({})
- } 
+                options:{},
+                ini : function(t){
+                    
+                },
+                open :function(){
+                    var self = $(this);
+                    self.addClass('open');
+                    self.animate({
+                        
+                    })
+                }
+  } 
 
 
 jQuery.fn.lift = function(options) {
@@ -18,7 +23,7 @@ jQuery.fn.lift = function(options) {
 		}, options);
     var b = options.h * (options.level - 1);
     var d = 100*(b/options.speed);   
-    console.log(d); 
+    /*console.log(d);*/ 
     self.animate({bottom:b}, d);    
 }
 
@@ -42,7 +47,7 @@ $(function(){
             $.ajax({
 					url: a.attr('href'),
                     type:'post',
-                    data:{lift:lift_id, level:level},
+                    data:{lift:lift_id, level:level, direction: event},
 					beforeSend: function( xhr ) {
 						//list.addClass('processing');
 					}

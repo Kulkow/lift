@@ -127,6 +127,33 @@ class Model_Lift extends ORM {
     */
     public function check_lift(){
         
+    } 
+    
+    /**
+    * вызов лифта
+    */
+    public function request($request = NULL){
+        if($request instanceof ORM){
+            if(! $request->loaded() OR ! $request->lift->loaded()){
+                return FALSE;
+            }
+            // лифт не едет
+            if($this->status == 0){
+                // то едем туда, и блокируем лифт на вызовы
+                $this->level = $request->level;
+                $this->status = 1;
+                if($this->current > $this->level){
+                    $this->direction = 'down';
+                }else{
+                    $this->direction = 'up';
+                } 
+                print_R($this->as_array());
+                $this->save();   
+            }
+            
+        }else{
+            return FALSE;
+        }
     }    
     
     public function status(){
