@@ -6,10 +6,10 @@ abstract class Controller extends Kohana_Controller
 
 	public function before()
 	{
-        if (HTTP_Request::POST == $this->request->method() AND ! Security::check($this->request->post('token')))
+        /*if (HTTP_Request::POST == $this->request->method() AND ! Security::check($this->request->post('token')))
 		{
 			$this->error('csrf');
-		}
+		}*/
 	}
 
 	public function after()
