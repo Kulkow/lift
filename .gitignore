@@ -1,0 +1,9 @@
+/application/cache
+/application/cache/*
+/application/cache/**
+/application/logs
+/application/logs/*
+/application/logs/**
+/media/upload/**
+/webstat/*
+/robots.txt
