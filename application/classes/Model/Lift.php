@@ -132,7 +132,7 @@ class Model_Lift extends ORM {
     /**
     * вызов лифта
     */
-    public function request($request = NULL){
+    public function _request($request = NULL){
         if($request instanceof ORM){
             if(! $request->loaded() OR ! $request->lift->loaded()){
                 return FALSE;
@@ -164,6 +164,202 @@ class Model_Lift extends ORM {
         $event = ORM::factory('event', $this->last_event);
         return View::factory('admin/event/preview')->bind('event', $event)->render();
     }
+    
+    /**
+    * Список запросов лифта в зависимости от направления. 
+    */
+    public function request($type = 'up'){
+        if($this->loaded()){
+            switch($type){
+                case 'down':
+                    $m = '<';
+                break;
+                
+                default:
+                    $m = '>';
+                break;
+            }
+            $dRequest = DB::query(Database::SELECT, 'SELECT `id`, created FROM `request` WHERE `lift_id`=:lift AND level '.$m.':level AND `created`<:time AND status !=:status ORDER BY created ASC ')
+                ->param(':lift', $this->id)
+                ->param(':level', $this->level)
+                ->param(':time', time())
+                ->param(':status', 'close');
+           $requests = $dRequest->execute();
+           $ids = array();
+           foreach($requests as $request){
+                $ids[] = $request['id'];
+           }
+           return $ids;
+        }   
+        return array();
+	}
+    
+    public function url_admin($action){
+		return Site::url('/admin/lift/'.$action.'/'.$this->id);
+	}
+
+	public function url($action = NULL){
+		return Site::url('/lift/'.$this->id.($action ? '/'.$action : ''));
+	}
+    
+    /**
+    * Initialisation
+    * Rand level if no instance
+    */
+    public function ini(){
+        if($this->loaded()){
+            $change = FALSE;
+            if(! $this->level){
+                $house_level = $this->house->level;
+                $this->level = rand(1,$house_level);
+                $this->current = $this->level;  
+                $change = TRUE;
+            }
+            // По-умолчанию лифт свободен 
+            if(! $this->status){
+                $this->status = 'free';
+                $change = TRUE;
+            }
+            if(! $this->current){
+                $this->current = 1;
+                $change = TRUE;
+            }
+            if($this->current > $this->level){
+                  $this->status = 'down'; // должен ехать вниз
+                  $change = TRUE;    
+            }
+            if($this->current < $this->level){
+                  $this->status = 'up'; // должен ехать вверх
+                  $change = TRUE;    
+            }
+            if($change){
+                $this->save();
+            }
+        }    
+        return $this;
+    }
+    
+    /**
+    * Получение/изменение состояния лифта 
+    */
+    public function status($status = NULL){
+        if($this->loaded()){
+            if(! $status){
+                return $this->status;                
+            }
+            else{
+                $this->status = $status;
+                $this->save();
+                return $this->status; 
+            }
+        }
+        return FALSE;
+    }
+    
+    // вызвали лифт
+    public function add_request(ORM $request){
+        if(! $request->loaded()){
+            return FALSE;
+        }
+        if(! $this->loaded()){
+            return FALSE;
+        }
+        $status = $this->status();
+        if($status == 'free'){
+           // если лифт свободен, то обновляем этаж - на который ему ехать
+           //$this->status = 'open';
+           $this->level = $request->level;
+           // обновим статус лифта
+           if($this->current > $request->level){
+                $this->status = 'down'; // едем вниз
+           }
+           else{
+                $this->status = 'up'; // едем вверх
+           }
+           $this->save();
+           $lift = $this->as_array();
+           return $lift;  
+        }
+        $lift = $this->as_array();
+        //print_r($lift);
+        return $lift;
+    }
+    
+    /**
+    * Обновляет запрос на этом этаже
+    */
+    public function update_request($level, $status = 'close'){
+        if($this->loaded()){
+            //лифт приехал на этаж, обновил запросы на этом этаже, если они были 
+            $query = DB::update('request')->set(array('status' => $status))->where('level', '=', $level)->where('lift_id', '=', $this->id)->where('status', '!=', $status);
+            
+            //print_r($query);
+            $request = $query->execute();//->as_array();
+            
+           
+            
+            return $request; // если вызов лифта на этом этаже был то вернет array()
+        }
+        return false;
+    }    
+    
+    /**
+    * Проверка наличия заказов 
+    */
+    public function check_request(){
+        if($this->loaded()){
+            $request = DB::query(Database::SELECT, 'SELECT `id` FROM `request` WHERE `lift_id`=:lift AND `created`<:time AND status !=:status SORT BY created ASC LIMIT 1')
+                ->param(':lift', $this->id)
+                ->param(':time', time())
+                ->param(':status', 'close');
+           $rows = $request->execute();
+           $row = $rows->current();
+           $request_id = Arr::get($row,'id', FALSE);
+           return $request_id;
+        }
+        return FALSE;
+    }
+    
+    /**
+    * Проверка статуса лифта
+    */
+    public function check_status(){
+       if(! $this->loaded()){
+          return FALSE;
+       }
+       return $this->status;
+    } 
+    
+    /**
+    * Проднять/опустить лифт
+    */
+    public function lift($n, $step = 1){
+       if(! $this->loaded()){
+          return FALSE;
+       }
+       if($n > 0 AND $this->current > $this->level){
+            return FALSE;
+       }
+       if($n < 0 AND $this->current < $this->level){
+            return FALSE;
+       }
+       if($this->current == $this->level){
+            $this->status = 'open';
+            $this->save();
+            return FALSE;
+       }
+       if($n > 0){
+            $this->status = 'up';
+       }else{
+            $this->status = 'down';
+       }
+       
+       $this->current = $this->current + $n;
+       $this->save();
+       // вернем разность 
+       return abs(intval($this->current - $this->level));
+    }   
+    
 
 
 

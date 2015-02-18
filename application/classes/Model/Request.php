@@ -57,6 +57,21 @@ class Model_Request extends ORM {
 		return parent::filter($filters);
 	}
     
+    /**
+    *
+    */
+    public function duble($level, ORM $request){
+        $dRequest = DB::query(Database::SELECT, 'SELECT `id` FROM `request` WHERE `lift_id`=:lift AND level =:level AND status !=:status')
+                ->param(':lift', $request->lift->id)
+                ->param(':level', $level)
+                ->param(':status', 'close');
+           $requests = $dRequest->execute()->as_array();
+           if(! empty($requests)){
+                return FALSE;
+           }
+           return TRUE;
+    }
+    
 
 
 }
