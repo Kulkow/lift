@@ -20,7 +20,7 @@
                     </div>
                     <? //if($lift->level == $level) : ?>
                     <? if($level == 1) : ?>
-                        <?php echo View::factory('lift/item')->bind('lift', $lift); ?>
+                        <div id="lift_<? echo $lift->id ?>" class="lift <? echo $lift->status ?>" data-status="<? echo $lift->status ?>" data-level="<? echo $lift->level ?>" style="bottom: <? echo ($h * $lift->level) ?>px;" ></div>
                     <? endif ?> 
                 </div>
                 <? endforeach ?>    

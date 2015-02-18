@@ -72,56 +72,9 @@ class Model_Lift extends ORM {
        return t('card.status.active');
 	}
     
-    public function url_admin($action){
-		return Site::url('/admin/lift/'.$action.'/'.$this->id);
-	}
-
-	public function url(){
-		return Site::url('/lift/'.$this->id.'');
-	}
     
-    /**
-    * Initialisation
-    * Rand level if no instance
-    */
-    public function ini(){
-        if($this->loaded()){
-            $change = FALSE;
-            if(! $this->level){
-                $house_level = $this->house->level;
-                $this->level = rand(1,$house_level);
-                $change = TRUE;
-            }
-            // По-умолчанию лифт свободен 
-            if(! $this->status){
-                $this->status = 'free';
-                $change = TRUE;
-            }
-            if($change){
-                $this->save();
-            }
-        }    
-        return $this;
-    }
     
-    /**
-    * Проверка наличия заказов 
-    */
-    public function check_request(){
-        if($this->loaded()){
-            //ORM::factory('request')->find(array() 'lift');
-            $request = DB::query(Database::SELECT, 'SELECT `id` FROM `request` WHERE `lift_id`=:lift AND `created`<:time AND status !=:status LIMIT 1')
-                ->param(':lift', $this->id)
-                ->param(':time', time())
-                ->param(':status', 'close');
-           $rows = $request->execute();
-           $row = $rows->current();
-           $request_id = Arr::get($row,'id', FALSE);
-           return $request_id;
-        }
-        return FALSE;
-    }
-    
+       
     /**
     *
     */
@@ -155,15 +108,7 @@ class Model_Lift extends ORM {
             return FALSE;
         }
     }    
-    
-    public function status(){
-        if (! $this->last_event)
-        {
-            return false;
-        }
-        $event = ORM::factory('event', $this->last_event);
-        return View::factory('admin/event/preview')->bind('event', $event)->render();
-    }
+   
     
     /**
     * Список запросов лифта в зависимости от направления. 
@@ -271,17 +216,16 @@ class Model_Lift extends ORM {
            $this->level = $request->level;
            // обновим статус лифта
            if($this->current > $request->level){
-                $this->status = 'down'; // едем вниз
+                $this->direction = 'down'; // едем вниз
            }
            else{
-                $this->status = 'up'; // едем вверх
+                $this->direction = 'up'; // едем вверх
            }
            $this->save();
            $lift = $this->as_array();
            return $lift;  
         }
         $lift = $this->as_array();
-        //print_r($lift);
         return $lift;
     }
     
@@ -292,12 +236,7 @@ class Model_Lift extends ORM {
         if($this->loaded()){
             //лифт приехал на этаж, обновил запросы на этом этаже, если они были 
             $query = DB::update('request')->set(array('status' => $status))->where('level', '=', $level)->where('lift_id', '=', $this->id)->where('status', '!=', $status);
-            
-            //print_r($query);
             $request = $query->execute();//->as_array();
-            
-           
-            
             return $request; // если вызов лифта на этом этаже был то вернет array()
         }
         return false;
