@@ -61,6 +61,12 @@ Route::set('user', 'user(/<id>(/<action>))')
 	));
 
 
+Route::set('lift', 'lift(/<id>(/<action>))')
+	->defaults(array(
+		'controller' 	=> 'lift',
+		'action'     	=> 'index',
+	));
+
 
     
 /**

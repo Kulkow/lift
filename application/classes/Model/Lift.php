@@ -7,19 +7,16 @@ class Model_Lift extends ORM {
     * current - ıòàæ íà êîòîğîì íàõîäèòüñÿ ëèôò
     * level - ıòàæ íà êîòîğîé åäåò ëèôò ëèôò
     * status - ñîîñòîÿíèå â êîòîğîì íàõîäèòüñÿ ëèôò
+    * 0 - free
+    * 1 - go - norequest
+    * 2 - open
     * number - íîìåğ ëèôòà â äîìå. 
     * levels  - íàæàòûå â ëèôòå êíîïêè
     * dereffeds - îòëîæåííûå ıòàæè - òàì ãäå îñòàëèñü æäàòü ëşäè
     * _levels - ıòàæè äëÿ îñòàíîâêè (ïóñòü ëèôò îñòàíàâëèâàåòñÿ íå áîëåå 3 ğàç - íà ïóòè è íà ñîñåäíèõ ıòàæàõ )  
     */
     
-    public $current = 1;
-    public $level = 1;
-    public $status = 0;
-    public $levels = [];
-    public $_levels = [];
-    public $dereffeds = [];
-
+  
     protected $_table_name = 'lift';
     
     protected $_belongs_to = array(
@@ -100,7 +97,6 @@ class Model_Lift extends ORM {
                 }else{
                     $this->direction = 'up';
                 } 
-                print_R($this->as_array());
                 $this->save();   
             }
             
@@ -210,10 +206,12 @@ class Model_Lift extends ORM {
             return FALSE;
         }
         $status = $this->status();
-        if($status == 'free'){
+        $_data = array();
+        if($status != 1){
            // åñëè ëèôò ñâîáîäåí, òî îáíîâëÿåì ıòàæ - íà êîòîğûé åìó åõàòü
            //$this->status = 'open';
            $this->level = $request->level;
+           $this->status = 1;
            // îáíîâèì ñòàòóñ ëèôòà
            if($this->current > $request->level){
                 $this->direction = 'down'; // åäåì âíèç
@@ -221,9 +219,16 @@ class Model_Lift extends ORM {
            else{
                 $this->direction = 'up'; // åäåì ââåğõ
            }
-           $this->save();
+           try{
+                $this->update();
+           }catch (ORM_Validation_Exception $e){
+				$errors = $e->errors('lift');
+                return $errors;
+			}
            $lift = $this->as_array();
            return $lift;  
+        }else{
+            // ïîèñê ñâîáîäíûõ ëèôòîâ 
         }
         $lift = $this->as_array();
         return $lift;

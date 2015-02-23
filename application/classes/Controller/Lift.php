@@ -51,7 +51,7 @@ class Controller_Lift extends Controller_Layout
     /**
     * поднятие спуск лифта на один этаж 
     */
-    public function action_lift(){
+    public function action_lift2(){
 		$lift = ORM::factory('lift', $this->request->param('id'));
         if ( ! $lift->loaded()){
         	return $this->error('lift.empty');
@@ -93,6 +93,42 @@ class Controller_Lift extends Controller_Layout
         //}
     }
     
+    public function action_lift(){
+		$lift = ORM::factory('lift', $this->request->param('id'));
+        if ( ! $lift->loaded()){
+        	return $this->error('lift.empty');
+		}
+        if (HTTP_Request::POST == $this->request->method()){
+            $post = $this->request->post();
+            $level = Arr::get($post, 'level', NULL);
+            $lift->level = $level;
+            if($lift->current == $lift->level){
+                
+            }else{
+               try{
+                    $lift->status = 3;
+                    if($lift->current > $lift->level){
+                        $lift->direction = 'down'; // едем вниз
+                    }
+                    else{
+                        $lift->direction = 'up'; // едем вверх
+                    }
+                    $lift->update();
+                    if ($this->request->is_ajax()){
+            			exit(json_encode(array('lift' => $lift->as_array()))); 
+            		}
+               }
+    			catch (ORM_Validation_Exception $e){
+    				$_REQUEST = Arr::merge($_REQUEST, $post);
+    				$errors = $e->errors('request');
+                    if ($this->request->is_ajax()){
+                        exit(json_encode(array('errors' => $errors)));
+            		}
+    			} 
+            }
+        }
+    }
+    
     /**
     * открыть лифт
     */
@@ -101,7 +137,9 @@ class Controller_Lift extends Controller_Layout
         if ( ! $lift->loaded()){
         	return $this->error('lift.empty');
 		}
-        $lift->status = 'open';
+        
+        $lift->current = $lift->level; 
+        $lift->status = 2;
         $lift->save();
         if ($this->request->is_ajax()){
             exit(json_encode(array('status' => 'open')));

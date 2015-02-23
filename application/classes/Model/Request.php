@@ -19,6 +19,9 @@ class Model_Request extends ORM {
     		'lift'		=> array(
     			'model'		=> 'lift',
     		),
+            'user'		=> array(
+    			'model'		=> 'user',
+    		),
     );
         
     /*protected $_has_many = array(
@@ -51,11 +54,20 @@ class Model_Request extends ORM {
 		);
 	}
     
-    public function filter(array $filters = array()){
+    public function filter(){
         $this->created = time();
         $this->ip = Request::$client_ip;
-		return parent::filter($filters);
+		//return parent::filters();
+        return $this;
 	}
+    
+    /*
+    public function create(Validation $validation = NULL){
+        $this->filter();
+        parent::create($validation);
+    }*/
+    
+    
     
     /**
     *

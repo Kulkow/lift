@@ -44,12 +44,12 @@ class Controller_Request extends Controller_Layout
                 $request = ORM::factory('request');
                 $request->values($post);
                 $request->lift = $lift;
-                $request->user = $this->auth_user;
+                $request->user = $this->auth_user();
                 $request->filter()->save(); // добавим вызов лифта
                 $l = $lift->as_array(); // лифт до запроса
-                $lift->add_request($request); // обновим статус лифта
+                $l = $lift->add_request($request); // обновим статус лифта
                 if ($this->request->is_ajax()){
-        			exit(json_encode($l)); // здесь будем статус лифта до вызова
+        			exit(json_encode(array('lift' => $l, 'request' => $request->as_array()))); // здесь будем статус лифта до вызова
         		}
         		else{
                     if(Arr::get($l,'status', NULL) == 'free'){

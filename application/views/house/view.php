@@ -1,8 +1,8 @@
-<link rel="stylesheet" href="<?php echo URL::site('media/css/lift.css') ?>" />
-<script type="text/javascript" src="<?php echo URL::site('media/js/lift.lang.js') ?>" charset="utf-8"></script>
-<script type="text/javascript" src="<?php echo URL::site('media/js/lift.js') ?>" charset="utf-8"></script>
+<link rel="stylesheet" href="<?php echo URL::site('media/js/lift/lift.css') ?>" />
+<script type="text/javascript" src="<?php echo URL::site('media/js/lift/lift.lang.js') ?>" charset="utf-8"></script>
+<script type="text/javascript" src="<?php echo URL::site('media/js/lift/lift.js') ?>" charset="utf-8"></script>
     
-<? $h = 153; // высота этажа в верстке  //$lifts = array();  ?>
+<? $h = 202; // высота этажа в верстке  //$lifts = array();  ?>
 <section class="house">
     <h1><? echo t('house.name').' '.t('house.number').' &laquo;'.$house->number.'&raquo;'; ?></h1>
     <div class="block">
@@ -31,3 +31,65 @@
         <? endforeach ?>    
     </div>
 </section>
+<div id="logs">
+    <div class="wrapper">
+    
+    
+    </div>
+</div>
+
+
+<script>/**
+* Application
+*/
+
+$(function(){
+    It_lift.ini();
+    
+    var lifts = $('.lift');
+    $('.level .actions A').click(function(){
+        var a = $(this), _lift = a.data('lift'), _level = a.data('level'), _event = a.data('event'), _url = a.attr('href'), lift = $('#lift_' + _lift);
+        if(lift.length > 0){
+            if(! a.hasClass('active')){
+                a.addClass('active');
+                It_lift.post(_url, {lift:_lift, level:_level, direction:_event}, function(json){
+                    if(json.request){
+                        var  r_lift = json.lift, lift = $('#lift_' + r_lift.id);
+                        console.log(json);
+                        liftgo(lift, r_lift.level);
+                        It_lift.log({lift: 'event:' + _event + ', lift:' + r_lift.id +',level ' + r_lift.level});
+                    }else{
+                    console.log(json);       
+                    }
+                })    
+            }
+        }
+        return !1;
+    })
+    
+    $('.lift .l').click(function(){
+        var a = $(this), _level = a.data('level'), _url = a.attr('href'), lift = a.closest('.lift');
+        if(lift.length > 0){
+            if(! a.hasClass('a')){
+                a.addClass('a');
+                It_lift.post(_url, {level:_level}, function(json){
+                    if(json.lift){
+                        var  r_lift = json.lift, lift = $('#lift_' + r_lift.id);
+                        console.log(json);
+                        liftgo(lift, r_lift.level);
+                        It_lift.log({lift: 'lift:' + r_lift.id +',level ' + r_lift.level});
+                    }else{
+                    console.log(json);       
+                    }
+                })    
+            }
+        }
+        return !1;
+    })
+    
+    /*
+    * периодично проверяем состояние лифта
+    */
+    //It_lift.post({})
+})
+</script>

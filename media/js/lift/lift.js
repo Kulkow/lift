@@ -21,12 +21,21 @@
  }
  
  It_lift.open = function(l){
-    var self = $(l);
-    self.attr('class','lift open');
-    var w = It_lift.options.l_w + 30;
-    self.animate({'width':w},300,'linear', function(){
-        $('.action .l',l).removeClass('a');
-    });
+    var self = $(l); 
+    var o_lift = It_lift.get_lift(l);
+    var url = window.location.protocol +'//' + window.location.hostname + '/lift/' + o_lift._id + '/open';  
+    It_lift.post(url,{}, function(json){
+            self.attr('class','lift open');
+            self.find('.action').removeClass('hidden');
+            It_lift.update(self, {status:2});
+            var w = It_lift.options.l_w + 30;
+            self.animate({'width':w},300,'linear', function(){
+                $('.action .l',l).removeClass('a');
+            });
+            var _level = $('#level_'+ o_lift.level).find('A[data-lift='+o_lift._id+']');
+            _level.removeClass('active');
+        }
+    )
  }
  
  It_lift.close = function(l){
@@ -34,7 +43,8 @@
     self.attr('class','lift');
     var w = It_lift.options.l_w;
     self.animate({'width':w},300,'linear', function(){
-        $('.action .l',l).removeClass('a');
+        $('.action .l',l).addClass('hidden');
+        $('.action',l).removeClass('a');
     });
  } 
  
@@ -49,6 +59,7 @@
         if(opt.current){
             self.attr('data-current',opt.current).data('current',opt.current);
         }
+        return It_lift.get_lift(self);
     }
 
 It_lift.get_lift = function(self){
@@ -62,69 +73,40 @@ It_lift.get_lift = function(self){
     }
 }
 
-It_lift.lift = function(l, level){
-        
+function liftgo(l, level){
         var o_lift = It_lift.get_lift(l);
-        if(o_lift.level != level){
-            It_lift.update(l,{level:level});
-        }
-        if(o_lift.current != o_lift.level){
-            if(o_lift.level > o_lift.current){
-                var f_level = o_lift.current + 1;
-            }else{
-                var f_level = o_lift.current - 1;    
+        /*if(o_lift.status == 0){*/
+        if(1){    
+            if(o_lift.level != level){
+                o_lift = It_lift.update(l,{level:level});
+                It_lift.close(l);
             }
-            var b = It_lift.options.h * (f_level - 1);
-            b = parseInt(b);
-            var d = 100*(b/It_lift.options.speed);
-            d = parseInt(d);   
-            l.animate({bottom:b}, d,'linear', function(){
-                It_lift.update(l,{current:f_level});
-                o_lift = It_lift.get_lift(l);
-                  It_lift.setlift(l);
-                  // отправляем запрос на этом этаже
-                  var url = window.location.protocol +'//' + window.location.hostname + '/lift/' + o_lift._id + '/lift/';  
-                  It_lift.post(url,{}, function(html){
-                    var json = $.parseJSON(html);
-                    console.log(json);
-                    if(json.errors){
-                       It_lift.error(json.errors); 
-                    }else{
-                        console.log('It_lift');
-                        console.log(It_lift);
-                        if(json.status == 'open'){
-                            It_lift.open(l);
-                            if(json.level != json.currnet){
-                               setInterval(function(){
-                                    It_lift.lift(l,json.level);
-                                }, 1000); 
-                            }
-                            
-                            
-                        }else{
-                            if(json.level != json.currnet){
-                             It_lift.lift(l,json.level);       
-                           } 
-                        }
-                        
-                        /*
-                        if(json.status == 'open'){
-                            It_lift.close(lift);
-                            It_lift.update(lift,{level:level});
-                            It_lift.lift(lift,level);                    
-                        }
-                        */
-                    }
-                   });
-                
-                //setInterval(function(){
-                    //It_lift.lift(l,level);       
-                //}, 15)       
-            });
+            if(o_lift.current != o_lift.level){
+                if(o_lift.level > o_lift.current){
+                    var f_level = o_lift.current + 1;
+                }else{
+                    var f_level = o_lift.current - 1;
+                }
+                var b = It_lift.options.h * (f_level - 1);
+                b = parseInt(b);
+                var d = 100*(b/It_lift.options.speed);
+                d = parseInt(d);   
+                l.animate({bottom:b}, d,'linear', function(){
+                    It_lift.update(l,{current:f_level});
+                    o_lift = It_lift.get_lift(l);
+                    It_lift.setlift(l);
+                    setTimeout(function(){
+                         liftgo(l,level);       
+                    }, 15);      
+                });
+            }else{
+                It_lift.open(l);
+                It_lift.log({lift: o_lift._id, event: 'open'});
+                return;
+            }
         }else{
-            It_lift.open(l);
-        }
-        
+            It_lift.log({lift: o_lift._id, event: 'no free'});
+        }    
 }
 
 /**
@@ -151,23 +133,37 @@ It_lift.error = function(errors) {
 }
 
 
+/*
+* log
+*/
+It_lift.log = function(_logs) {
+    var text = '';
+    for(var _log in _logs){
+        text +=  _log + '-' +_logs[_log];
+        //console.log(text); 
+    }
+    $('#logs .wrapper').append('<div class="log">'+text+'</div>');
+}
+
 /** 
 ajax
 */
 It_lift.post = function(url,data, callback){
-    if(! data.token){
+    /*if(! data.token){
         data.token = It_lift.options.token;  
-    }
+    }*/
     $.ajax({url: url,
             type:'post',
-            typeDate:'json',
+            dataType:'json',
             data:data,
 			beforeSend: function( xhr ) {
-			if(It_lift.lift){
-				  It_lift.lift.addClass('processing');
-			}
+    			if(It_lift.lift){
+    				  /*It_lift.lift.addClass('processing');*/
+    			}
             }
-    	}).done(callback);
+    	}).success(function(json){
+    	   callback(json);
+    	});
 }
 
 
@@ -234,6 +230,8 @@ jQuery.fn.lift = function(data,options) {
     self.animate({bottom:b}, d);
     */     
 }
+
+
 
 
 

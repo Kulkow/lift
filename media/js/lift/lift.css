@@ -1,4 +1,4 @@
-.house{position: relative;}
+.house{position: relative; margin-bottom: 120px;}
 
 .house .block{position: relative; display: table; border-collapse: collapse; border:3px solid #000;}
 .house .level{position: relative; display: table-row;}
@@ -17,8 +17,12 @@
 .house .lift .action .l{text-decoration: none; text-align: center;}
 .house .lift .action .l.a{border-color:red;}
 
-.house .lift .piple{background: url(../images/piple.png) 0 center no-repeat; padding: 0 0 0 30px; height: 30px;
+/*.house .lift .piple{background: url(../images/piple.png) 0 center no-repeat; padding: 0 0 0 30px; height: 30px;
 position: absolute; right: 3px; bottom:3px;}
+*/
+.house .lift .piple{background: #fff; padding: 0 1px; height: 100px; width: 10px;
+position: absolute; right: 3px; bottom:3px; border:1px solid #ccc;}
+.house .lift .piple I{background: #8BFC44; width: 100%; height: 10px; border-radius: 1px; position: relative; display: block;margin: 2px auto;}
 
 /**
 * actions
@@ -26,8 +30,12 @@ position: absolute; right: 3px; bottom:3px;}
 .house .level .actions {position: relative; float: left;}
 .house .level .actions UL{list-style: none outside none; position: relative;}
 .house .level .actions UL LI{display: block; position: relative; list-style: none outside none;}
-.house .level .actions UL LI A{background: url('../images/lift.png') 0 0 no-repeat; width: 30px; height: 30px; display: block; padding: 1px; margin: 5px;}
+.house .level .actions UL LI A{/*background: url('../images/lift.png') 0 0 no-repeat;*/position: relative; font-size:10px; background: #15B1FF;border-radius: 100%; width: 30px; height: 30px; display: block; padding: 1px; margin: 5px;}
 
+.house .level .actions .up:before{content: 'up'; color:#fff; position: absolute; width: 30px; height: 30px; border-radius: 100%; left:0; top:0; text-align: center; line-height: 30px;}
+.house .level .actions .down:before{content: 'down'; color:#fff; position: absolute; width: 30px; height: 30px; border-radius: 100%; left:0; top:0;text-align: center;line-height: 30px;}
+
+/*
 .house .level .actions .up{background-position: 0 0;}
 .house .level .actions .down{background-position: 0 -32px;}
 
@@ -39,3 +47,17 @@ position: absolute; right: 3px; bottom:3px;}
 
 .house .level .actions .up.complete{background-position: 0 -96px;}
 .house .level .actions .down.complete{background-position: 0 -64px;}
+*/
+
+.house .level .actions .up:hover{background: #FA4424;}
+.house .level .actions .down:hover{background: #FA4424;}
+
+.house .level .actions .up.active{background: #FA4424;}
+.house .level .actions .down.active{background: #FA4424;}
+
+.house .level .actions .up.complete{background: #12A404;}
+.house .level .actions .down.complete{background: #12A404;}
+
+#logs{width: 100%; height: 100px; position: absolute; bottom: 0; left:0; border-top: 2px solid #ccc;}
+#logs .wrapper{position: relative; width: 100%; height: 100%; overflow-y: scroll;}
+#logs .log{position: relative; border-bottom: 1px solid #ddd; margin: 7px 0; padding: 5px; font-style: italic;}

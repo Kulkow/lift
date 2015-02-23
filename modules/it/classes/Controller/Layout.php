@@ -42,6 +42,16 @@ abstract class Controller_Layout extends Controller
 
 		$this->menu = strtolower(str_replace('Controller_', '', get_class($this)));
 	}
+    
+    public function auth_user(){
+       $this->auth_user = Auth::instance()->get_user();
+       
+       if(! $this->auth_user){
+            $this->auth_user = ORM::factory('user', array('login' => 'guest'));
+       }
+       return $this->auth_user;
+        
+    }
 
 
 
