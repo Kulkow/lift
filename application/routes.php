@@ -66,7 +66,11 @@ Route::set('lift', 'lift(/<id>(/<action>))')
 		'controller' 	=> 'lift',
 		'action'     	=> 'index',
 	));
-
+Route::set('house', 'house(/<id>(/<action>))')
+	->defaults(array(
+		'controller' 	=> 'house',
+		'action'     	=> 'index',
+	));
 
     
 /**

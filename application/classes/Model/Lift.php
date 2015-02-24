@@ -51,10 +51,9 @@ class Model_Lift extends ORM {
 			),
             'status' 	=> array(
 				array('strtolower'),
-			),
+			)
 		);
 	}
-    
     
     public function active()
 	{
@@ -69,7 +68,11 @@ class Model_Lift extends ORM {
        return t('card.status.active');
 	}
     
-    
+    public function save(Validation $validation = NULL)
+	{
+		$this->updated = time();
+		return parent::save($validation);
+	}
     
        
     /**
@@ -156,23 +159,19 @@ class Model_Lift extends ORM {
                 $this->current = $this->level;  
                 $change = TRUE;
             }
-            // По-умолчанию лифт свободен 
-            if(! $this->status){
-                $this->status = 'free';
-                $change = TRUE;
-            }
+            
             if(! $this->current){
                 $this->current = 1;
                 $change = TRUE;
             }
-            if($this->current > $this->level){
-                  $this->status = 'down'; // должен ехать вниз
+            
+			if($this->current != $this->level){
+                  $this->status = 1; // должен ехать вниз
                   $change = TRUE;    
+				  echo $this->current.' = '.$this->level;
+				  echo 'no lift '.$this->id;
             }
-            if($this->current < $this->level){
-                  $this->status = 'up'; // должен ехать вверх
-                  $change = TRUE;    
-            }
+			
             if($change){
                 $this->save();
             }
@@ -234,6 +233,34 @@ class Model_Lift extends ORM {
         return $lift;
     }
     
+	/** 
+	* обновляет статус 
+	* 
+	*/
+	public function update_status(){
+		$config = Kohana::$config->load('lift');
+		if(! $this->loaded()){
+			return FALSE;
+		}
+		$change = FALSE;
+		//если лифт долго открыт и не едет то, делаем
+		$params = $config->get('open');
+		if($_opentime = Arr::get($params, 'time', FALSE)){
+			$opentime = time() - $this->updated;
+			if($opentime > $_opentime){
+				$this->status = 0;
+				$change = TRUE;
+			}
+		}
+		
+		if($change){
+			$this->update();
+		}
+		return $this;
+	}
+	
+		
+		
     /**
     * Обновляет запрос на этом этаже
     */

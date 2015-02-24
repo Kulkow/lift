@@ -13,7 +13,7 @@
  }
  
  It_lift._preset = function(l, current, level){
-    l.data('current', current).attr('data-current', current);
+	l.data('current', current).attr('data-current', current);
     l.data('level', level).attr('data-level', level);
     var b = It_lift.options.h * (current - 1);
     b = parseInt(b);
@@ -27,6 +27,7 @@
     It_lift.post(url,{}, function(json){
             self.attr('class','lift open');
             self.find('.action').removeClass('hidden');
+			self.removeClass('go');
             It_lift.update(self, {status:2});
             var w = It_lift.options.l_w + 30;
             self.animate({'width':w},300,'linear', function(){
@@ -49,24 +50,29 @@
  } 
  
  It_lift.update = function(self,opt){
-        if(opt.level){
-            self.attr('data-level',opt.level).data('level',opt.level);
-        }
-        if(opt.status){
-            self.attr('data-status',opt.status).data('status',opt.status);
-            self.attr('class','lift ' + opt.status);
-        }
-        if(opt.current){
-            self.attr('data-current',opt.current).data('current',opt.current);
-        }
-        return It_lift.get_lift(self);
-    }
+	//var o = It_lift.get_lift(self);
+	if(opt.level){
+		self.attr('data-level',opt.level).data('level',opt.level);
+	}
+	if(opt.status){
+		self.attr('data-status',opt.status).data('status',opt.status);
+		self.attr('class','lift ' + opt.status);
+	}
+	if(opt.current){
+		self.attr('data-current',opt.current).data('current',opt.current);
+	}
+	if(opt.updated){
+		self.attr('data-updated',opt.updated).data('updated',opt.updated);
+	}
+	return It_lift.get_lift(self);
+}
 
 It_lift.get_lift = function(self){
     return {self: self,
             _id: self.data('id'),
             current: self.data('current'),// на каком этаже лифт сейчас
             level: self.data('level'), //на какой едет
+			updated: self.data('updated'), //когда последний раз обновлялось
             //up: self.data('up').split(','), //на каких этажи есть вызовы при движении вверх
             //down: self.data('down').split(','), //на каких этажи есть вызовы при движении вниз
             status: self.data('status'), //куда едет лифт - up вверх, down вниз
@@ -79,7 +85,8 @@ function liftgo(l, level){
         if(1){    
             if(o_lift.level != level){
                 o_lift = It_lift.update(l,{level:level});
-                It_lift.close(l);
+                l.addClass('go');
+				It_lift.close(l);
             }
             if(o_lift.current != o_lift.level){
                 if(o_lift.level > o_lift.current){
@@ -164,6 +171,47 @@ It_lift.post = function(url,data, callback){
     	}).success(function(json){
     	   callback(json);
     	});
+}
+
+/**rest*/
+Itrest = function(house, timeout){
+	var url = window.location.protocol +'//' + window.location.hostname + '/house/' + house + '/lifts'; 
+	var c_lifts = {}, c_ids = [], index = 0;
+	$('.lift').each(function(i, item){
+		var _l = $(item);
+		var _cl = It_lift.get_lift(_l);
+		c_lifts[_cl._id] = _cl;
+		index++;
+		c_ids[index] = _cl._id;
+	})
+	It_lift.post(url, {}, function(json){
+		if(json.lifts){
+			for (var _id in json.lifts) {
+				var _lift = json.lifts[_id];
+				if(c_lifts[_id]){
+					var c_lift = c_lifts[_id];
+					if(c_lift.updated != _lift.updated){
+					    console.log(c_lift.updated +'= '+ _lift.updated);
+						c_lift = It_lift.update(c_lift.self,_lift);
+						console.log('update lift '+ c_lift._id);
+						if(c_lift.status == 1){
+							if(! c_lift.self.hasClass('go')){
+								liftgo(c_lift.self, c_lift.level);
+							}
+						}
+						if(_lift.status != c_lift.status){
+							console.log('update status');
+						}
+					}
+				}else{
+					console.log('add lift');
+				}
+			}
+		}
+		setTimeout(function(){
+			Itrest(house, timeout);
+		}, timeout)
+	})	
 }
 
 

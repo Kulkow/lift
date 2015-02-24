@@ -1,6 +1,6 @@
 <? $h = ! empty($h) ? $h : 202 ?>
 <div id="lift_<? echo $lift->id ?>" class="lift <? echo $lift->status ?>" data-id="<? echo $lift->id ?>" data-status="<? echo $lift->status ?>" 
-data-current="<? echo $lift->current ?>" data-up="<? echo implode(',', $lift->request('up')) ?>" data-down="<? echo implode(',',$lift->request('down')) ?>" data-level="<? echo $lift->level ?>" style="bottom: <? echo ($h * ($lift->current - 1)) ?>px;" >
+data-current="<? echo $lift->current ?>" data-updated="<? echo $lift->updated ?>" data-level="<? echo $lift->level ?>" style="bottom: <? echo ($h * ($lift->current - 1)) ?>px;" >
     <div class="action hidden">
         <div class="s">
         <? $l = $lift->house->level; ?>
