@@ -81,6 +81,7 @@ It_lift.get_lift = function(self){
 
 function liftgo(l, level){
         var o_lift = It_lift.get_lift(l);
+		
         /*if(o_lift.status == 0){*/
         if(1){    
             if(o_lift.level != level){
