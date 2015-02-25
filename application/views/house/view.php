@@ -1,6 +1,6 @@
 <link rel="stylesheet" href="<?php echo URL::site('media/js/lift/lift.css') ?>" />
 <script type="text/javascript" src="<?php echo URL::site('media/js/lift/lift.lang.js') ?>" charset="utf-8"></script>
-<script type="text/javascript" src="<?php echo URL::site('media/js/lift/lift.js') ?>" charset="utf-8"></script>
+<script type="text/javascript" src="<?php echo URL::site('media/js/lift/lift2.js') ?>" charset="utf-8"></script>
     
 <? $h = 202; // высота этажа в верстке  //$lifts = array();  ?>
 <section class="house">
@@ -39,10 +39,61 @@
 </div>
 
 
-<script>/**
+<script>
+/**
 * Application
 */
+$(function(){
+    var lifts = {};
+    $('.lift').each(function(index, _lift){
+        var lift = new Itlift();
+        olift =  lift.init(_lift);
+        lifts[olift._id] = olift;
+    });
+    $('.level .actions A').click(function(){
+        var a = $(this), _lift = a.data('lift'), _level = a.data('level'), _event = a.data('event'), _url = a.attr('href');
+        if(lifts[_lift]){
+            var olift = lifts[_lift];
+            if(! a.hasClass('active')){
+                a.addClass('active');
+                olift.post(_url, {lift:_lift, level:_level, direction:_event}, function(json){
+                    if(json.request){
+                        var  r_lift = json.lift, lift = $('#lift_' + r_lift.id);
+                        liftgo(olift.self, r_lift.level);
+                        olift.log({lift: 'event:' + _event + ', lift:' + r_lift.id +',level ' + r_lift.level});
+                    }else{
+                    console.log(json);       
+                    }
+                })    
+            }
+        }
+        return !1;
+    })
+    
+    $('.lift .l').click(function(){
+        var a = $(this), _level = a.data('level'), _url = a.attr('href'), lift = a.closest('.lift');
+        if(lift.length > 0){
+            if(! a.hasClass('a')){
+                var _lift = new Itlift(), olift =  _lift.init(_lift);
+                a.addClass('a');
+                olift.post(_url, {level:_level}, function(json){
+                    if(json.lift){
+                        var  r_lift = json.lift, lift = $('#lift_' + r_lift.id);
+                        console.log(json);
+                        liftgo(lift, r_lift.level);
+                        olift.log({lift: 'lift:' + r_lift.id +',level ' + r_lift.level});
+                    }else{
+                    console.log(json);       
+                    }
+                })    
+            }
+        }
+        return !1;
+    })
+    Itrest(<? echo $house->id ?>, 7000);
+})
 
+/*
 $(function(){
     It_lift.ini();
     
@@ -88,9 +139,6 @@ $(function(){
     })
     
 	Itrest(<? echo $house->id ?>, 7000);
-    /*
-    * периодично проверяем состояние лифта
-    */
-    //It_lift.post({})
-})
+    
+})*/
 </script>

@@ -245,16 +245,26 @@ class Model_Lift extends ORM {
 		$change = FALSE;
 		//если лифт долго открыт и не едет то, делаем
 		$params = $config->get('open');
-		if($_opentime = Arr::get($params, 'time', FALSE)){
-			$opentime = time() - $this->updated;
-			if($opentime > $_opentime){
-				$this->status = 0;
-				$change = TRUE;
-			}
-		}
+        $_opentime = Arr::get($params, 'time', FALSE);
+        $updated = intval($this->updated);
+        if(! $updated){
+            $change = TRUE;
+        }
+        if($this->status == '2')
+        {
+            $opentime = time() - intval($this->updated);
+            //echo '_id '.$this->id.':'.$opentime.':'.$_opentime.'--';
+    		if($_opentime){
+    			if($opentime > $_opentime){
+    				$this->status = 0;
+    				$change = TRUE;
+    			}
+    		} 
+        }
+        
 		
 		if($change){
-			$this->update();
+			$this->save();
 		}
 		return $this;
 	}

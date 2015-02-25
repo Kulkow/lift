@@ -31,7 +31,7 @@ class Controller_House extends Controller_Layout
 		*/
 		$_lifts = ORM::factory('lift')->where('house_id','=',$house)->find_all();
 		foreach($_lifts as $_lift){
-			$_lift->update_status();
+			$_lift = $_lift->update_status();
 			$lifts[$_lift->id] = $_lift->as_array();
 			$ids[] = $_lift->id;
 		}
