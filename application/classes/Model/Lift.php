@@ -289,7 +289,7 @@ class Model_Lift extends ORM {
     */
     public function check_request(){
         if($this->loaded()){
-            $request = DB::query(Database::SELECT, 'SELECT `id` FROM `request` WHERE `lift_id`=:lift AND `created`<:time AND status !=:status SORT BY created ASC LIMIT 1')
+           $request = DB::query(Database::SELECT, 'SELECT `id` FROM `request` WHERE `lift_id`=:lift AND `created`<:time AND status !=:status SORT BY created ASC LIMIT 1')
                 ->param(':lift', $this->id)
                 ->param(':time', time())
                 ->param(':status', 'close');
@@ -339,7 +339,23 @@ class Model_Lift extends ORM {
        $this->save();
        // вернем разность 
        return abs(intval($this->current - $this->level));
-    }   
+    }
+    
+    /**
+    * последний (Текущий) вызов лифта
+    */
+    public function last_request($n, $step = 1){
+       if(! $this->loaded()){
+          return FALSE;
+       }
+       $request = DB::query(Database::SELECT, 'SELECT `id` FROM `request` WHERE `lift_id`=:lift AND `created`<:time AND status !=:status SORT BY created ASC LIMIT 1')
+            ->param(':lift', $this->id)
+            ->param(':time', time())
+            ->param(':status', 'close');
+       $rows = $request->execute();
+       $row = $rows->current();
+       $request_id = Arr::get($row,'id', FALSE);
+    }      
     
 
 

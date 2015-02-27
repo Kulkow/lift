@@ -137,7 +137,6 @@ class Controller_Lift extends Controller_Layout
         if ( ! $lift->loaded()){
         	return $this->error('lift.empty');
 		}
-        
         $lift->current = $lift->level; 
         $lift->status = 2;
         $lift->save();
