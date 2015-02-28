@@ -32,7 +32,10 @@ CREATE TABLE IF NOT EXISTS `log` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `event` varchar(255) NOT NULL,
   `target` varchar(255) NOT NULL,
-  `description` text NOT NULL,
+  `target_id` int(11) DEFAULT NULL,
+  `level` int(11) DEFAULT NULL,
+  `distance` int(11) DEFAULT NULL,
+  `content` text NOT NULL,
   `created` int(11) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;

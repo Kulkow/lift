@@ -47,7 +47,11 @@ class Model_Log extends ORM {
             if($user){
                 $log->user = $user;
             }else{
-                $log->user = Auth::instance()->get_user();
+                $auth_user = Auth::instance()->get_user();
+                if(! $auth_user){
+                    $auth_user = ORM::factory('user', array('login' => 'guest'));
+                } 
+                $log->user = $auth_user;
             }
             if(! empty($content)){
                 if(! is_array($content)){

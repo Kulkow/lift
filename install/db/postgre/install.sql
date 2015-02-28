@@ -38,8 +38,13 @@ CREATE TABLE IF NOT EXISTS log
   id  SERIAL PRIMARY KEY,
   event varchar NOT NULL,
   target varchar NOT NULL,
-  description text NOT NULL,
-  created integer NOT NULL
+  target_id integer DEFAULT NULL,
+  user_id integer DEFAULT NULL,
+  level integer DEFAULT NULL,
+  distance integer DEFAULT NULL,
+  content text NOT NULL,
+  created integer NOT NULL,
+  ip varchar NOT NULL
 )WITH (
   OIDS=FALSE
 );
