@@ -9,5 +9,4 @@
                 <li><p>Адрес: <?php echo $user->address;  ?></p></li>
             <?php endif ?>
         </ul>
-    <p>Баланс: <?php echo $user->balance();  ?></p>
 </div>

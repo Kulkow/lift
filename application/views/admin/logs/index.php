@@ -24,8 +24,8 @@
         		<tr class="item">
         		        <td><?php echo date("d.m.Y H:i:s", $log->created) ?></td>
                         <td><?php echo ($log->user_id ? $log->user->login : 'guest') ?></td>
-                        <td><?php echo $log->target() ?></td>
-                        <td><?php echo $log->action ?></td>
+                        <td><?php echo $log->target ?>/<?php echo $log->target_id ?></td>
+                        <td><?php echo t($log->target.'.'.$log->event) ?></td>
                         <td><?php if (! empty($log->content)) : ?>
                             <?php $datas = unserialize($log->content); ?> 
                               <ul>

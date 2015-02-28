@@ -46,6 +46,7 @@ class Controller_Request extends Controller_Layout
                 $request->lift = $lift;
                 $request->user = $this->auth_user();
                 $request->filter()->save(); // добавим вызов лифта
+                ORM::factory('log')->add_event($this->auth_user, 'request', $lift, array('level' => $request->level));
                 $l = $lift->as_array(); // лифт до запроса
                 $l = $lift->add_request($request); // обновим статус лифта
                 if ($this->request->is_ajax()){

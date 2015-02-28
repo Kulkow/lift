@@ -22,13 +22,9 @@ abstract class Controller_Layout extends Controller
 
 		if ( ! $this->request->is_ajax())
 		{
-			
-            if ( ! $this->auth_user AND $this->request->controller() != 'auth')
-			{
+            if ( ! $this->auth_user AND $this->request->controller() != 'auth'){
 				Session::instance()->set('refer_before_auth', Arr::get($_SERVER, 'REQUEST_URI', '/'));
 			}
-
-	       	//$this->site = Model::factory('site');
             $this->site = ORM::factory('site')->find();
 			$this->template = View::factory($this->template);
 	   	   	$this->template->bind_global('site', $this->site);

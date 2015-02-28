@@ -56,41 +56,37 @@ class Controller_Lift extends Controller_Layout
         if ( ! $lift->loaded()){
         	return $this->error('lift.empty');
 		}
-        //if (HTTP_Request::POST == $this->request->method()){
-            //$post = $this->request->post();
-            //$type = Arr::get($post, 'type', NULL);
-            $type = $lift->status();
-            $go = FALSE;
-            $current = $lift->current;
-            switch($type){
-                case 'up':
-                    $go = $lift->lift(1);
-                    $current++;
-                break;
-                
-                case 'down':
-                    $go = $lift->lift(-1);
-                    $current--;
-                break;
-            }
-            if($go === FALSE){
-                return FALSE;
-            }elseif($go > 0){
-                $request = $lift->update_request($current); //обновляет статус запроса на этаже   
-                if ($this->request->is_ajax()){
-                    $status = ! empty($request) ? 'open' : $lift->status;  
-        			exit(json_encode(array('request' => $request, 'level' => intval($lift->level), 'current' => intval($lift->current), 'status' => $status)));
-        		}else{
-        		  Controller::redirect('lift/lift/'.$this->request->param('id'));
-        		}
-            }else{
-               if ($this->request->is_ajax()){
-        			exit(json_encode(array('status' => 'open')));
-        		}else{
-        		  Controller::redirect('lift/open/'.$this->request->param('id'));
-        		} 
-            }
-        //}
+        $type = $lift->status();
+        $go = FALSE;
+        $current = $lift->current;
+        switch($type){
+            case 'up':
+                $go = $lift->lift(1);
+                $current++;
+            break;
+            
+            case 'down':
+                $go = $lift->lift(-1);
+                $current--;
+            break;
+        }
+        if($go === FALSE){
+            return FALSE;
+        }elseif($go > 0){
+            $request = $lift->update_request($current); //обновляет статус запроса на этаже   
+            if ($this->request->is_ajax()){
+                $status = ! empty($request) ? 'open' : $lift->status;  
+    			exit(json_encode(array('request' => $request, 'level' => intval($lift->level), 'current' => intval($lift->current), 'status' => $status)));
+    		}else{
+    		  Controller::redirect('lift/lift/'.$this->request->param('id'));
+    		}
+        }else{
+           if ($this->request->is_ajax()){
+    			exit(json_encode(array('status' => 'open')));
+    		}else{
+    		  Controller::redirect('lift/open/'.$this->request->param('id'));
+    		} 
+        }
     }
     
     public function action_lift(){
@@ -143,6 +139,7 @@ class Controller_Lift extends Controller_Layout
         if($request){
            $request->close();
         }
+        ORM::factory('log')->add_event($this->auth_user, 'open', $lift, array('level' => $lift->level));
         $lift->save();
         if ($this->request->is_ajax()){
             exit(json_encode(array('status' => 2)));
@@ -172,7 +169,6 @@ class Controller_Lift extends Controller_Layout
 	public function action_add(){
 	   
        $post = $this->request->post();
-       print_r($post);
        $json = json_encode(array('error' => FALSE, 'status' => 'up'));
        exit($json);
        
@@ -253,5 +249,5 @@ class Controller_Lift extends Controller_Layout
             Controller::redirect('admin/lift');
 		}
 	}
-
+    
 }

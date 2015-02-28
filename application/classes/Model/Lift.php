@@ -220,6 +220,7 @@ class Model_Lift extends ORM {
            }
            try{
                 $this->save();
+                ORM::factory('log')->add_event(NULL, 'go.'.$this->direction, $this, array('level' => $this->level));
            }catch (ORM_Validation_Exception $e){
 				$errors = $e->errors('lift');
                 return $errors;
@@ -265,14 +266,14 @@ class Model_Lift extends ORM {
         /**
         * Лифт ждет на этаже 
         */
-        if($this->status == 0){
+        /*if($this->status == 0){
             // Есть ли еще вызовы
             $request = $this->check_request();
             if($request){
                 $this->add_request($request);
             }
         }
-		
+		*/
 		if($change){
 			$this->save();
 		}
@@ -420,8 +421,6 @@ class Model_Lift extends ORM {
        return $request; 
     }      
     
-
-
-
+   
 }
  

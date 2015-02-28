@@ -2,9 +2,8 @@
 /**
  * Default auth user token
  */
-class Model_Auth_User_Token extends ODM
+class Model_Auth_User_Token extends ORM
 {
-	protected $_id_alias = 'token';
 
 	protected $_belongs_to = array(
 		'user' 		=> array(
@@ -17,9 +16,8 @@ class Model_Auth_User_Token extends ODM
 	 *
 	 * @return  void
 	 */
-	public function __construct($_id = NULL)
+	public function __construct()
 	{
-		parent::__construct($_id);
 
 		if (mt_rand(1, 100) === 1)
 		{
@@ -27,7 +25,7 @@ class Model_Auth_User_Token extends ODM
 			$this->delete_expired();
 		}
 
-		if ($this->_loaded AND $this->expires->sec < time())
+		if ($this->loaded() AND $this->expires < time())
 		{
 			// This object has expired
 			$this->delete();
@@ -41,19 +39,22 @@ class Model_Auth_User_Token extends ODM
 	 */
 	public function delete_expired()
 	{
-		$this->remove(array('expires' => array('$lte' => new MongoDate(time()))));
+		DB::query(Database::SELECT, 'DELETE FROM :table WHERE expires < :time')
+                ->param(':table', $this->_table_name)
+                ->param(':time', time())->execute();
+        //$this->remove(array('expires' => array('$lte' => new MongoDate(time()))));
 		return $this;
 	}
 
 	public function create_new($user, $lifetime, array $values = NULL)
 	{
-		if ($this->_loaded)
+		if ($this->loaded())
 		{
 			$this->delete();
 		}
 
 		$this->user = $user;
-		$this->expires = new MongoDate(time() + $lifetime);
+		$this->expires = time() + $lifetime;
 		$this->user_agent = sha1(Request::$user_agent);
 
 		if ($values !== NULL)
