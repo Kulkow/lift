@@ -48,6 +48,9 @@ $(function(){
     $('.lift').each(function(index, _lift){
         var lift = new Itlift();
         olift =  lift.init(_lift);
+        if(olift.status == 2){
+            olift.open(olift.self);
+        }
         lifts[olift._id] = olift;
     });
     $('.level .actions A').click(function(){
@@ -59,7 +62,9 @@ $(function(){
                 olift.post(_url, {lift:_lift, level:_level, direction:_event}, function(json){
                     if(json.request){
                         var  r_lift = json.lift, lift = $('#lift_' + r_lift.id);
-                        liftgo(olift.self, r_lift.level);
+                        var _lift_free = new Itlift();
+                        lift_free =  _lift_free.init(lift);
+                        liftgo(lift_free.self, r_lift.level);
                         olift.log({lift: 'event:' + _event + ', lift:' + r_lift.id +',level ' + r_lift.level});
                     }else{
                     console.log(json);       
@@ -79,7 +84,6 @@ $(function(){
                 olift.post(_url, {level:_level}, function(json){
                     if(json.lift){
                         var  r_lift = json.lift, lift = $('#lift_' + r_lift.id);
-                        console.log(json);
                         liftgo(lift, r_lift.level);
                         olift.log({lift: 'lift:' + r_lift.id +',level ' + r_lift.level});
                     }else{
@@ -90,55 +94,6 @@ $(function(){
         }
         return !1;
     })
-    Itrest(<? echo $house->id ?>, 7000);
+    Itrest(<? echo $house->id ?>, 2000);
 })
-
-/*
-$(function(){
-    It_lift.ini();
-    
-    var lifts = $('.lift');
-    $('.level .actions A').click(function(){
-        var a = $(this), _lift = a.data('lift'), _level = a.data('level'), _event = a.data('event'), _url = a.attr('href'), lift = $('#lift_' + _lift);
-        if(lift.length > 0){
-            if(! a.hasClass('active')){
-                a.addClass('active');
-                It_lift.post(_url, {lift:_lift, level:_level, direction:_event}, function(json){
-                    if(json.request){
-                        var  r_lift = json.lift, lift = $('#lift_' + r_lift.id);
-                        console.log(json);
-                        liftgo(lift, r_lift.level);
-                        It_lift.log({lift: 'event:' + _event + ', lift:' + r_lift.id +',level ' + r_lift.level});
-                    }else{
-                    console.log(json);       
-                    }
-                })    
-            }
-        }
-        return !1;
-    })
-    
-    $('.lift .l').click(function(){
-        var a = $(this), _level = a.data('level'), _url = a.attr('href'), lift = a.closest('.lift');
-        if(lift.length > 0){
-            if(! a.hasClass('a')){
-                a.addClass('a');
-                It_lift.post(_url, {level:_level}, function(json){
-                    if(json.lift){
-                        var  r_lift = json.lift, lift = $('#lift_' + r_lift.id);
-                        console.log(json);
-                        liftgo(lift, r_lift.level);
-                        It_lift.log({lift: 'lift:' + r_lift.id +',level ' + r_lift.level});
-                    }else{
-                    console.log(json);       
-                    }
-                })    
-            }
-        }
-        return !1;
-    })
-    
-	Itrest(<? echo $house->id ?>, 7000);
-    
-})*/
 </script>

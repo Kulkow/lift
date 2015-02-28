@@ -2,6 +2,10 @@
 
 class Model_Lift extends ORM {
     
+    const LIFT_FREE = 0;
+    const LIFT_LIFT = 1;
+    const LIFT_OPEN = 2;
+    const LIFT_BLOCKED = 3;
     /**
     * fields
     * current - этаж на котором находиться лифт
@@ -74,69 +78,6 @@ class Model_Lift extends ORM {
 		return parent::save($validation);
 	}
     
-       
-    /**
-    *
-    */
-    public function check_lift(){
-        
-    } 
-    
-    /**
-    * вызов лифта
-    */
-    public function _request($request = NULL){
-        if($request instanceof ORM){
-            if(! $request->loaded() OR ! $request->lift->loaded()){
-                return FALSE;
-            }
-            // лифт не едет
-            if($this->status == 0){
-                // то едем туда, и блокируем лифт на вызовы
-                $this->level = $request->level;
-                $this->status = 1;
-                if($this->current > $this->level){
-                    $this->direction = 'down';
-                }else{
-                    $this->direction = 'up';
-                } 
-                $this->save();   
-            }
-            
-        }else{
-            return FALSE;
-        }
-    }    
-   
-    
-    /**
-    * Список запросов лифта в зависимости от направления. 
-    */
-    public function request($type = 'up'){
-        if($this->loaded()){
-            switch($type){
-                case 'down':
-                    $m = '<';
-                break;
-                
-                default:
-                    $m = '>';
-                break;
-            }
-            $dRequest = DB::query(Database::SELECT, 'SELECT `id`, created FROM `request` WHERE `lift_id`=:lift AND level '.$m.':level AND `created`<:time AND status !=:status ORDER BY created ASC ')
-                ->param(':lift', $this->id)
-                ->param(':level', $this->level)
-                ->param(':time', time())
-                ->param(':status', 'close');
-           $requests = $dRequest->execute();
-           $ids = array();
-           foreach($requests as $request){
-                $ids[] = $request['id'];
-           }
-           return $ids;
-        }   
-        return array();
-	}
     
     public function url_admin($action){
 		return Site::url('/admin/lift/'.$action.'/'.$this->id);
@@ -165,11 +106,9 @@ class Model_Lift extends ORM {
                 $change = TRUE;
             }
             
-			if($this->current != $this->level){
-                  $this->status = 1; // должен ехать вниз
+			if($this->current != $this->level AND $this->status != self::LIFT_LIFT){
+                  $this->status = self::LIFT_LIFT; // должен ехать вниз
                   $change = TRUE;    
-				  echo $this->current.' = '.$this->level;
-				  echo 'no lift '.$this->id;
             }
 			
             if($change){
@@ -196,6 +135,13 @@ class Model_Lift extends ORM {
         return FALSE;
     }
     
+    public function distance($status = NULL){
+        if($this->loaded()){
+            return abs(intval($this->level) - intval($this->current));
+        }
+        return 0;
+    }        
+    
     // вызвали лифт
     public function add_request(ORM $request){
         if(! $request->loaded()){
@@ -206,11 +152,11 @@ class Model_Lift extends ORM {
         }
         $status = $this->status();
         $_data = array();
-        if($status == 0){
+        if($status == self::LIFT_FREE){
            // если лифт свободен, то обновляем этаж - на который ему ехать
            //$this->status = 'open';
            $this->level = $request->level;
-           $this->status = 1;
+           $this->status = self::LIFT_LIFT;
            // обновим статус лифта
            if($this->current > $request->level){
                 $this->direction = 'down'; // едем вниз
@@ -220,7 +166,8 @@ class Model_Lift extends ORM {
            }
            try{
                 $this->save();
-                ORM::factory('log')->add_event(NULL, 'go.'.$this->direction, $this, array('level' => $this->level));
+                $distance = $this->distance();
+                ORM::factory('log')->add_event(NULL, 'go.'.$this->direction, $this, array('level' => $this->level, 'distance' => $distance));
            }catch (ORM_Validation_Exception $e){
 				$errors = $e->errors('lift');
                 return $errors;
@@ -229,6 +176,29 @@ class Model_Lift extends ORM {
            return $lift;  
         }else{
             // поиск свободных лифтов 
+            $free = $this->free($request->level);
+            if($free){
+                $free->level = $request->level;
+                $free->status = self::LIFT_LIFT;
+                // обновим статус лифта
+                if($free->current > $request->level){
+                    $free->direction = 'down'; // едем вниз
+                }
+               else{
+                    $free->direction = 'up'; // едем вверх
+               }
+               try{
+                    $free->save();
+                    $distance = $this->distance();
+                    ORM::factory('log')->add_event(NULL, 'go.'.$free->direction, $free, array('level' => $free->level, 'distance' => $distance));
+               }catch (ORM_Validation_Exception $e){
+    				$errors = $e->errors('lift');
+                    return $errors;
+    			}
+               $lift = $free->as_array();
+               return $lift;  
+               //return $free->add_request($request);
+            }
         }
         $lift = $this->as_array();
         return $lift;
@@ -254,11 +224,11 @@ class Model_Lift extends ORM {
         /**
         * Лифт ждет на этаже
         */
-        if($this->status == 2){
+        if($this->status == self::LIFT_OPEN){
             $opentime = time() - intval($this->updated);
     		if($_opentime){
     			if($opentime > $_opentime){
-    				$this->status = 0;
+    				$this->status = self::LIFT_FREE;
     				$change = TRUE;
     			}
     		} 
@@ -266,14 +236,13 @@ class Model_Lift extends ORM {
         /**
         * Лифт ждет на этаже 
         */
-        /*if($this->status == 0){
+        if($this->status == self::LIFT_FREE){
             // Есть ли еще вызовы
             $request = $this->check_request();
             if($request){
                 $this->add_request($request);
             }
         }
-		*/
 		if($change){
 			$this->save();
 		}
@@ -285,7 +254,7 @@ class Model_Lift extends ORM {
     /**
     * Обновляет запрос на этом этаже
     */
-    public function update_request($level, $status = 'close'){
+    public function update_request($level, $status = NULL){
         if($this->loaded()){
             //лифт приехал на этаж, обновил запросы на этом этаже, если они были 
             $query = DB::update('request')->set(array('status' => $status))->where('level', '=', $level)->where('lift_id', '=', $this->id)->where('status', '!=', $status);
@@ -296,18 +265,11 @@ class Model_Lift extends ORM {
     }    
     
     /**
-    * Проверка наличия заказов 
+    * Проверка наличия отложенных запросов 
     */
     public function check_request(){
         if($this->loaded()){
-           /*$request = DB::query(Database::SELECT, 'SELECT `id` FROM `request` WHERE `lift_id`=:lift AND status !=:status ORDER BY created ASC LIMIT 1')
-                ->param(':lift', $this->id)
-                ->param(':status', 1);
-           $rows = $request->execute();
-           $row = $rows->current();
-           $request_id = Arr::get($row,'id', FALSE);
-           return $request_id;*/
-           $request = ORM::factory('request')->where('lift_id', '=', $this->id)->and_where('status', '!=', 1);
+           $request = ORM::factory('request')->where('lift_id', '=', $this->id)->and_where('status', '=', Model_Request::REQUEST_DEFENDER);
            $request = $request->order_by('created','ASC')->limit(1)->find();
            if(! $request->loaded()){
             return FALSE;
@@ -354,14 +316,16 @@ class Model_Lift extends ORM {
             return FALSE;
        }
        if($this->current == $this->level){
-            $this->status = 'open';
+            $this->status = self::LIFT_OPEN;
             $this->save();
             return FALSE;
+       }else{
+            $this->status = self::LIFT_LIFT;
        }
        if($n > 0){
-            $this->status = 'up';
+            $this->direction = 'up';
        }else{
-            $this->status = 'down';
+            $this->direction = 'down';
        }
        
        $this->current = $this->current + $n;
@@ -370,13 +334,40 @@ class Model_Lift extends ORM {
        return abs(intval($this->current - $this->level));
     }
     
+    /**
+    * Поиск свободных лифтов
+    * которые ближе всего
+    * к этажу
+    */
+    public function free($level = NULL, $house = NULL){
+        $lift = NULL;
+        $diff = 1000;
+        if($this->loaded()){
+            $house = $this->house->id; 
+        }
+        if($house){
+            $lifts = ORM::factory('lift')->where('house_id', '=',$house)->or_where_open()->or_where('status', '=',self::LIFT_FREE)->or_where('status', '=','1')->or_where_close()->order_by('level', 'DESC')->find_all(); 
+            foreach($lifts as $_lift){
+                if($_lift->level == $level){
+                    return $_lift;
+                }
+                $_diff = abs($level - $_lift->level);
+                if($_diff < $diff){
+                    $diff = $_diff;
+                    $lift = $_lift;
+                }
+            } 
+            return  $lift; 
+        }
+    }
+    
     public function lift($level){
        if(! $this->loaded()){
           return FALSE;
        }
-       if($this->status == 0){
+       if($this->status == self::LIFT_FREE){
             if($this->current == $level){
-                return FALSE;
+                return $this;
             }
             $this->level = $level;
             $this->status = 1;

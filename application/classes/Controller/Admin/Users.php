@@ -14,7 +14,6 @@ class Controller_Admin_Users extends Controller_Admin_Layout
     
     public function before()
     {
-       // ORM::factory('user', array('login' => '2770003000001'))->values(array('password', '111777'))->update();
         parent::before();
         $this->session = Session::instance();
         $this->users = ORM::factory('user');

@@ -74,7 +74,8 @@ function Itlift(){
     				self.animate({'width':w},300,'linear', function(){
     					$('.action .l',l).removeClass('a');
     				});
-    				var _level = $('#level_'+ o_lift.level).find('A[data-lift='+o_lift._id+']');
+    				/*var _level = $('#level_'+ o_lift.level).find('A[data-lift='+o_lift._id+']');*/
+                    var _level = $('#level_'+ o_lift.level).find('.actions A');
     				_level.removeClass('active');
     			}
     		)

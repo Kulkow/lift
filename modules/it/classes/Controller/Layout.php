@@ -15,13 +15,10 @@ abstract class Controller_Layout extends Controller
 	{
         parent::before();
         Site::ini();
-        
         //Site::ssl();
-        
         $this->auth_user = Auth::instance()->get_user();
 
-		if ( ! $this->request->is_ajax())
-		{
+		if ( ! $this->request->is_ajax()){
             if ( ! $this->auth_user AND $this->request->controller() != 'auth'){
 				Session::instance()->set('refer_before_auth', Arr::get($_SERVER, 'REQUEST_URI', '/'));
 			}

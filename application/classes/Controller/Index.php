@@ -12,9 +12,6 @@ class Controller_Index extends Controller_Layout
             $min_level = 10; 
        }
        $lifts = $house->lifts->find_all();
-       /*$user = ORM::factory('user', array('login' => 'admin'));
-       $user->password = '111777';
-       $user->save();*/
        foreach($lifts as $lift){
             $lift->ini();
             if($min_level){

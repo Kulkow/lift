@@ -90,10 +90,10 @@ class Controller_Lift extends Controller_Layout
     }
     
     public function action_lift(){
-		$lift = ORM::factory('lift', $this->request->param('id'));
+    	$lift = ORM::factory('lift', $this->request->param('id'));
         if ( ! $lift->loaded()){
         	return $this->error('lift.empty');
-		}
+    	}
         if (HTTP_Request::POST == $this->request->method()){
             $post = $this->request->post();
             $level = Arr::get($post, 'level', NULL);
@@ -110,6 +110,7 @@ class Controller_Lift extends Controller_Layout
                         $lift->direction = 'up'; // едем вверх
                     }
                     $lift->update();
+                    ORM::factory('log')->add_event($this->auth_user, 'lift', $lift, array('level' => $lift->level));
                     if ($this->request->is_ajax()){
             			exit(json_encode(array('lift' => $lift->as_array()))); 
             		}
@@ -134,7 +135,7 @@ class Controller_Lift extends Controller_Layout
         	return $this->error('lift.empty');
 		}
         $lift->current = $lift->level; 
-        $lift->status = 2;
+        $lift->status = $lift::LIFT_OPEN;
         $request = $lift->last_request($lift->level);
         if($request){
            $request->close();
@@ -166,88 +167,5 @@ class Controller_Lift extends Controller_Layout
         }
    }    
 
-	public function action_add(){
-	   
-       $post = $this->request->post();
-       $json = json_encode(array('error' => FALSE, 'status' => 'up'));
-       exit($json);
-       
-       $lift_id = Arr::get($post, 'lift', NULL);
-       if(! $lift_id){
-            return $this->error('request.nolift');
-       }
-       $lift = ORM::factory('lift', $lift_id);
-       if(! $lift->loaded()){
-            return $this->error('request.lift.noloaded');
-       }
-       
-       /**
-        *  Проверим состояние лифта
-       */
-       $status =  $lift->status();
-       
-	   $request = ORM::factory('request');
-       if (HTTP_Request::POST == $this->request->method()){
-			try{
-				$post = $this->request->post();
-				$request->values($post)->save();
-                //Controller::redirect('admin/lift');
-                if ($this->request->is_ajax()){
-        			echo json_encode(array('error' => FALSE));
-        			exit();
-        		}
-        		else{
-                    Controller::redirect('admin/lift');
-        		}
-			}
-			catch (ORM_Validation_Exception $e){
-				$_REQUEST = Arr::merge($_REQUEST, $values);
-				$errors = $e->errors('lift');
-			}
-		}
-		else{
-			$_REQUEST = Arr::merge($_REQUEST, $lift->as_array());
-		}
-		$this->template->content = View::factory('admin/lift/edit')->bind('errors', $errors);
-       //$this->action_edit();
-	}
 
-	public function action_edit(){
-		$lift = ORM::factory('lift', $this->request->param('id'));
-        /*if ( ! $lift->loaded()){
-        	throw new HTTP_Exception_404();
-		}*/
-		if (HTTP_Request::POST == $this->request->method()){
-			try{
-				$values = $this->request->post();
-				$lift->values($values)->save();
-                Controller::redirect('admin/lift');
-			}
-			catch (ORM_Validation_Exception $e){
-				$_REQUEST = Arr::merge($_REQUEST, $values);
-				$errors = $e->errors('lift');
-                print_r($errors);
-			}
-		}
-		else{
-			$_REQUEST = Arr::merge($_REQUEST, $lift->as_array());
-		}
-		$this->template->content = View::factory('admin/lift/edit')->bind('errors', $errors);
-	}
-
-	public function action_delete(){
-		$lift = ORM::factory('lift', $this->request->param('id'));
-		if ( ! $lift->loaded()){
-			throw new HTTP_Exception_404();
-		}
-		$lift->delete();
-		if ($this->request->is_ajax()){
-			echo json_encode(array('error' => FALSE));
-			exit();
-		}
-		else{
-            Controller::redirect('admin/lift');
-		}
-	}
-    
 }

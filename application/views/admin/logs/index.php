@@ -1,13 +1,29 @@
 <h1>Логи</h1>
-   <div class="sort">
-        <?php $sort_field = array() ?> 
-        <?php foreach($sort_field as $field) : ?>
-            <div class="field">
-              <a href="<?php echo $field->url() ?>" title=""></a>  <?php echo $field['name'] ?>
-            </div>
-        <?php endforeach ?>
-   </div>
 <?php if ($logs) : ?>
+<div class="search form">
+  <form action="" accept-charset="UTF-8" method="POST">
+            <div class="it-row">
+              <label for="it-field">Поле </label>
+               <div class="it-select" id="it-field">
+                    <select name="field">
+                       <option value="event" <?php echo ($search_field == 'event' ? 'selected="selected"' : '') ?>><?php echo t('logs.event') ?></option>
+                       <option value="target_id" <?php echo ($search_field == 'lift' ? 'selected="selected"' : '') ?>><?php echo t('logs.lift') ?></option>
+                       <option value="user_id" <?php echo ($search_field == 'user' ? 'selected="selected"' : '') ?>><?php echo t('logs.user') ?></option>
+                       <option value="level" <?php echo ($search_field == 'level' ? 'selected="selected"' : '') ?>><?php echo t('logs.level') ?></option>
+                    </select>
+                </div>
+            </div>
+            <div class="it-row">
+                <label for="it-search">Поиск</label>
+                <div class="it-text">
+                    <input type="text" id="it-search" name="search" value="<?php echo $search ?>" />
+                </div>
+            </div>
+            <div class="it-row last">
+                <button class="it-button" value="1" name="send">Поиск</button>
+            </div>
+        </form>
+</div>
    <table class="table">
         <thead>
             <tr>
@@ -43,3 +59,8 @@
     </table>
 	<?php echo $paging ?>
 <?php endif ?>
+<style>
+ .search.form {position: relative; overflow: hidden;}
+ .search.form .it-row {float: left; width: 350px; clear: none; margin-right: 15px;}
+ .search.form .it-row.last {padding-top: 20px;}
+</style>

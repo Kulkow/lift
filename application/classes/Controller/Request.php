@@ -30,6 +30,7 @@ class Controller_Request extends Controller_Layout
     public function action_add(){
        $post = $this->request->post();
        $lift_id = Arr::get($post, 'lift', NULL);
+       $_level = Arr::get($post, 'level', NULL);
        if(! $lift_id){
             return $this->error('request.nolift');
        }
@@ -43,17 +44,36 @@ class Controller_Request extends Controller_Layout
 			try{
                 $request = ORM::factory('request');
                 $request->values($post);
-                $request->lift = $lift;
+                $request->lift = $lift; // может не важно какой лифт поедет, главное чтобы он приехал
                 $request->user = $this->auth_user();
-                $request->filter()->save(); // добавим вызов лифта
+                
+                $free_lift = $lift->free($_level); //поиск свободных лифтов
+                if($free_lift){
+                    $lift =  $free_lift;
+                    $request->filter()->save();
+                    ORM::factory('log')->add_event($this->auth_user, 'request', $lift, array('level' => $request->level));
+                    $l = $lift->add_request($request); // обновим статус лифта 
+                }else{
+                  $request->status = Model_Request::REQUEST_DEFENDER;
+                  $request->filter()->save();
+                  $l  = NULL;
+                  ORM::factory('log')->add_event($this->auth_user, 'defender', $request, array('level' => $request->level));
+                }
+                /*
+                $diff_level = abs($free_lift->current - $_level);
+                $diff_level_current = abs($lift->current - $_level);
+                if($diff_level < $diff_level_current){
+                   $lift =  $free_lift;
+                }*/
+                
+                
                 ORM::factory('log')->add_event($this->auth_user, 'request', $lift, array('level' => $request->level));
-                $l = $lift->as_array(); // лифт до запроса
                 $l = $lift->add_request($request); // обновим статус лифта
                 if ($this->request->is_ajax()){
         			exit(json_encode(array('lift' => $l, 'request' => $request->as_array()))); // здесь будем статус лифта до вызова
         		}
         		else{
-                    if(Arr::get($l,'status', NULL) == 'free'){
+                    if(Arr::get($l,'status', NULL) == LIFT_FREE){
                         // лифт едет к нам
                         Controller::redirect($lift->url('lift'));
                     }
@@ -75,43 +95,4 @@ class Controller_Request extends Controller_Layout
         }
        //$this->action_edit();
 	}
-
-	public function action_edit(){
-		$lift = ORM::factory('lift', $this->request->param('id'));
-        /*if ( ! $lift->loaded()){
-        	throw new HTTP_Exception_404();
-		}*/
-		if (HTTP_Request::POST == $this->request->method()){
-			try{
-				$values = $this->request->post();
-				$lift->values($values)->save();
-                Controller::redirect('admin/lift');
-			}
-			catch (ORM_Validation_Exception $e){
-				$_REQUEST = Arr::merge($_REQUEST, $values);
-				$errors = $e->errors('lift');
-                print_r($errors);
-			}
-		}
-		else{
-			$_REQUEST = Arr::merge($_REQUEST, $lift->as_array());
-		}
-		$this->template->content = View::factory('admin/lift/edit')->bind('errors', $errors);
-	}
-
-	public function action_delete(){
-		$lift = ORM::factory('lift', $this->request->param('id'));
-		if ( ! $lift->loaded()){
-			throw new HTTP_Exception_404();
-		}
-		$lift->delete();
-		if ($this->request->is_ajax()){
-			echo json_encode(array('error' => FALSE));
-			exit();
-		}
-		else{
-            Controller::redirect('admin/lift');
-		}
-	}
-
 }

@@ -40,8 +40,6 @@ class Controller_House extends Controller_Layout
             $lifts[$_lift->id] = $_lift->as_array();
 			$ids[] = $_lift->id;
 		}
-        
-		
 		if ($this->request->is_ajax()){
 			exit(json_encode(array('lifts' => $lifts, 'ids' => $ids))); 
 		}
