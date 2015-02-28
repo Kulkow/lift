@@ -206,7 +206,7 @@ class Model_Lift extends ORM {
         }
         $status = $this->status();
         $_data = array();
-        if($status != 1){
+        if($status == 0){
            // если лифт свободен, то обновляем этаж - на который ему ехать
            //$this->status = 'open';
            $this->level = $request->level;
@@ -219,7 +219,7 @@ class Model_Lift extends ORM {
                 $this->direction = 'up'; // едем вверх
            }
            try{
-                $this->update();
+                $this->save();
            }catch (ORM_Validation_Exception $e){
 				$errors = $e->errors('lift');
                 return $errors;
@@ -250,10 +250,11 @@ class Model_Lift extends ORM {
         if(! $updated){
             $change = TRUE;
         }
-        if($this->status == '2')
-        {
+        /**
+        * Лифт ждет на этаже
+        */
+        if($this->status == 2){
             $opentime = time() - intval($this->updated);
-            //echo '_id '.$this->id.':'.$opentime.':'.$_opentime.'--';
     		if($_opentime){
     			if($opentime > $_opentime){
     				$this->status = 0;
@@ -261,7 +262,16 @@ class Model_Lift extends ORM {
     			}
     		} 
         }
-        
+        /**
+        * Лифт ждет на этаже 
+        */
+        if($this->status == 0){
+            // Есть ли еще вызовы
+            $request = $this->check_request();
+            if($request){
+                $this->add_request($request);
+            }
+        }
 		
 		if($change){
 			$this->save();
@@ -289,16 +299,34 @@ class Model_Lift extends ORM {
     */
     public function check_request(){
         if($this->loaded()){
-           $request = DB::query(Database::SELECT, 'SELECT `id` FROM `request` WHERE `lift_id`=:lift AND `created`<:time AND status !=:status SORT BY created ASC LIMIT 1')
+           /*$request = DB::query(Database::SELECT, 'SELECT `id` FROM `request` WHERE `lift_id`=:lift AND status !=:status ORDER BY created ASC LIMIT 1')
                 ->param(':lift', $this->id)
-                ->param(':time', time())
-                ->param(':status', 'close');
+                ->param(':status', 1);
            $rows = $request->execute();
            $row = $rows->current();
            $request_id = Arr::get($row,'id', FALSE);
-           return $request_id;
+           return $request_id;*/
+           $request = ORM::factory('request')->where('lift_id', '=', $this->id)->and_where('status', '!=', 1);
+           $request = $request->order_by('created','ASC')->limit(1)->find();
+           if(! $request->loaded()){
+            return FALSE;
+           }
+           return $request; 
         }
         return FALSE;
+    }
+    
+    /**
+    * Проверка наличия лифта на 1 этаже (или он туда едет) 
+    */
+    public function check_first_level($house = NULL){
+        if(! $house){
+            $house = $this->house->id;
+        }
+        if($house){
+            $lift = ORM::factory('lift')->where('house_id', '=', $house)->and_where('level', '=', 1);
+        }
+        return TRUE;
     }
     
     /**
@@ -314,7 +342,7 @@ class Model_Lift extends ORM {
     /**
     * Проднять/опустить лифт
     */
-    public function lift($n, $step = 1){
+    public function lift_step($n, $step = 1){
        if(! $this->loaded()){
           return FALSE;
        }
@@ -341,20 +369,55 @@ class Model_Lift extends ORM {
        return abs(intval($this->current - $this->level));
     }
     
-    /**
-    * последний (Текущий) вызов лифта
-    */
-    public function last_request($n, $step = 1){
+    public function lift($level){
        if(! $this->loaded()){
           return FALSE;
        }
-       $request = DB::query(Database::SELECT, 'SELECT `id` FROM `request` WHERE `lift_id`=:lift AND `created`<:time AND status !=:status SORT BY created ASC LIMIT 1')
+       if($this->status == 0){
+            if($this->current == $level){
+                return FALSE;
+            }
+            $this->level = $level;
+            $this->status = 1;
+            if($this->current > $this->level){
+                $this->direction = 'down'; // едем вниз
+            }
+            else{
+                $this->direction = 'up'; // едем вверх
+            }
+            try{
+                $this->save();
+            }catch (ORM_Validation_Exception $e){
+                $errors = $e->errors('lift');
+                return $errors;
+            }
+       }
+       return $this;
+    }
+    
+    /**
+    * последний (Текущий) вызов лифта
+    */
+    public function last_request($level = NULL){
+       if(! $this->loaded()){
+          return FALSE;
+       }
+       /*
+       $request = DB::query(Database::SELECT, 'SELECT `id` FROM `request` WHERE `lift_id`=:lift AND status !=:status ORDER BY created ASC LIMIT 1')
             ->param(':lift', $this->id)
-            ->param(':time', time())
-            ->param(':status', 'close');
+            ->param(':status', 1);
        $rows = $request->execute();
        $row = $rows->current();
-       $request_id = Arr::get($row,'id', FALSE);
+       $request_id = Arr::get($row,'id', FALSE);*/
+       $request = ORM::factory('request')->where('lift_id', '=', $this->id)->and_where('status', '!=', 1);
+       if($level){
+          $request = $request->and_where('level', '=', $level);
+       }
+       $request = $request->order_by('created','ASC')->limit(1)->find();
+       if(! $request->loaded()){
+        return FALSE;
+       }
+       return $request; 
     }      
     
 

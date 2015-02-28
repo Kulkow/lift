@@ -139,9 +139,13 @@ class Controller_Lift extends Controller_Layout
 		}
         $lift->current = $lift->level; 
         $lift->status = 2;
+        $request = $lift->last_request($lift->level);
+        if($request){
+           $request->close();
+        }
         $lift->save();
         if ($this->request->is_ajax()){
-            exit(json_encode(array('status' => 'open')));
+            exit(json_encode(array('status' => 2)));
         }
    }
    
@@ -156,7 +160,7 @@ class Controller_Lift extends Controller_Layout
         if (HTTP_Request::POST == $this->request->method()){
             $post = $this->request->post();
             $level = Arr::get($post,'level', NULL);
-            if($level AND $lift->status == 'open'){
+            if($level AND $lift->status == 2){
                 $lift->lift = $level;
                 $lift->save();
             }

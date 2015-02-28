@@ -21,20 +21,26 @@ class Controller_House extends Controller_Layout
 		}
 		$lifts = [];
 		$ids = [];
-		/*
-		$rsLifs = DB::query(Database::SELECT, 'SELECT * FROM `lift` WHERE `house_id`=:house_id ORDER BY id ASC ')->param(':house_id', $house);
-	    $_lifts = $rsLifs->execute();
-		foreach($_lifts as $_lift){
-			$lifts[$_lift['id']] = $_lift;
-			$ids[] = $_lift['id'];
-		}
-		*/
-		$_lifts = ORM::factory('lift')->where('house_id','=',$house)->find_all();
+        $first_level_lift = NULL;
+        if (ORM::factory('lift')->check_first_level($house)){
+            $first_level_lift = TRUE; 
+        }
+		$_lifts = ORM::factory('lift')->where('house_id','=',$house)->order_by('level', 'ASC')->find_all();
 		foreach($_lifts as $_lift){
 			$_lift = $_lift->update_status();
-			$lifts[$_lift->id] = $_lift->as_array();
+            if($first_level_lift){
+                $_l = $_lift->lift(1);
+                if($_l){
+                    $_lift = $_l;
+                }else{
+                    return $this->error('lift.nolift');
+                }
+                $first_level_lift = FALSE;
+            }
+            $lifts[$_lift->id] = $_lift->as_array();
 			$ids[] = $_lift->id;
 		}
+        
 		
 		if ($this->request->is_ajax()){
 			exit(json_encode(array('lifts' => $lifts, 'ids' => $ids))); 

@@ -84,6 +84,14 @@ class Model_Request extends ORM {
            return TRUE;
     }
     
+    public function close(){
+        if($this->loaded()){
+            $this->status = 1;
+            $this->save();
+        }
+        return FALSE;
+    }
+    
 
 
 }
