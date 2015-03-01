@@ -68,7 +68,7 @@ class Controller_Simple_Migrations extends Controller_Template
 	private function _check_install()
 	{
 		if ($this->request->action() != 'install' && !Simple_Migration::instance()->is_installed()) {
-			$this->request->redirect('simple_migrations/install');
+			Controller::redirect('migrate/install'); // $this->request->redirect('simple_migrations/install');
 		}
 	}
 
@@ -110,7 +110,7 @@ class Controller_Simple_Migrations extends Controller_Template
 
 			// Install and redirect
 			$installer->install();
-			$this->request->redirect('simple_migrations');
+			Controller::redirect('migrate');//$this->request->redirect('simple_migrations');
 		}
 	}
 
@@ -128,7 +128,7 @@ class Controller_Simple_Migrations extends Controller_Template
 
 			// Uninstall and redirect
 			$installer->uninstall();
-			$this->request->redirect('simple_migrations');
+			Controller::redirect('migrate'); //$this->request->redirect('simple_migrations');
 		}
 	}
 }

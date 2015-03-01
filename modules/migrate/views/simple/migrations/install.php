@@ -9,7 +9,7 @@
 	</p>
 
 	<p>
-		<a href="<?=URL::base()?>simple_migrations/install/continue" class="btn btn-primary btn-large">
+		<a href="<?=URL::base()?>migrate/install/continue" class="btn btn-primary btn-large">
 			<?=__('Install the module')?>
 		</a>
 	</p>

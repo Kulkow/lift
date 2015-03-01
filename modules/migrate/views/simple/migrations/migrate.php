@@ -4,7 +4,7 @@
 	':to' => Request::current()->param('id')
 ))?></h2>
 
-<a href="<?=URL::base()?>simple_migrations"><?=__('Back to Dash')?></a>
+<a href="<?=URL::base()?>migrate"><?=__('Back to Dash')?></a>
 <br/>
 <br/>
 <div class="alert <?=$output['status'] === 0 ? 'alert-success' : 'alert-error'?>">
@@ -25,4 +25,4 @@
 <div class="clearfix"></div>
 <br/>
 
-<a href="<?=URL::base()?>simple_migrations"><?=__('Back to Dash')?></a>
+<a href="<?=URL::base()?>migrate"><?=__('Back to Dash')?></a>

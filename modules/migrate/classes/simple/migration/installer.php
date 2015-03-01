@@ -33,7 +33,7 @@ class Simple_Migration_Installer extends Simple_Migration
 
 		Database::instance()->begin();
 
-		// Create the table
+        // Create the table
 		DB::query(Database::INSERT, self::get_install_sql())
 			->execute();
 

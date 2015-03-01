@@ -14,7 +14,7 @@
 		<?= __('Not yet applied.') ?>
 	</p>
 		<p>
-	<a href="<?=URL::base()?>simple_migrations/migrate/<?=$revision->version?>" title="<?=__('Migrate to revision :ver',
+	<a href="<?=URL::base()?>migrate/migrate/<?=$revision->version?>" title="<?=__('Migrate to revision :ver',
 		array(':ver' => $revision->version))?>" class="btn btn-warning pull-right"><?=__('Migrate to this revision')?></a>
 		<?endif ?>
 </p>

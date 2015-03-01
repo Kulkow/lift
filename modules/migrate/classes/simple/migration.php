@@ -16,8 +16,11 @@ class Simple_Migration
 	/**
 	 * Kohana compatibility
 	 */
-	const COMPATIBLE_FROM = '3.2.0';
-	const COMPATIBLE_TO = '3.2.0';
+	//const COMPATIBLE_FROM = '3.2.0';
+	//const COMPATIBLE_TO = '3.2.0';
+    
+    const COMPATIBLE_FROM = '3.3.0';
+	const COMPATIBLE_TO = '3.3.2';
 
 	/**
 	 * Constants for database state
@@ -37,7 +40,7 @@ class Simple_Migration
 	 *
 	 * @since 1.0
 	 */
-	const BASE_DIR = 'database/migrations/';
+	const BASE_DIR = 'application/migrations/';
 
 	/**
 	 * @since 1.0
@@ -193,7 +196,7 @@ class Simple_Migration
 	 */
 	public function current()
 	{
-		// Return cached copy
+        // Return cached copy
 		if (Simple_Migration::$_current === NULL) {
 			Simple_Migration::$_current = $this->_current();
 		}
@@ -215,13 +218,18 @@ class Simple_Migration
 	private function _current()
 	{
 		try {
-			return DB::select()
+			$select = DB::select()
 				->from($this->get_table_name())
 				->order_by('version', 'DESC')
 				->limit(1)
 				->as_object('simple_migration_revision')
 				->execute()
 				->current();
+                if(! $select){
+                   	return new Simple_Migration_Revision(0); 
+                }
+                return $select;
+                
 		} catch (Database_Exception $e) {
 			return new Simple_Migration_Revision(0);
 		}

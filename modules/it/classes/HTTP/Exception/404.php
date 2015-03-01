@@ -10,6 +10,7 @@ class HTTP_Exception_404 extends Kohana_HTTP_Exception_404 {
      */
     public function get_response()
     {
+        Site::ini();
         $content = View::factory('errors/404');
         $view = $this->get_template($content);
  

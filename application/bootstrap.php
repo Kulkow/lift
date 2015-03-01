@@ -128,7 +128,7 @@ Kohana::modules(array(
     'it'        => MODPATH.'it',
     'email'      => MODPATH.'email',      // Image manipulation 
     'captcha'      	=> MODPATH.'captcha',	// Captcha
-    
+    'migrate'   => MODPATH.'migrate',   // Unit testing
 	// 'unittest'   => MODPATH.'unittest',   // Unit testing
 	// 'userguide'  => MODPATH.'userguide',  // User guide and API documentation
 	));

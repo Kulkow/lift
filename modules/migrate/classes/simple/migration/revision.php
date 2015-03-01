@@ -111,7 +111,8 @@ class Simple_Migration_Revision
 		if ($method === self::METHOD_SHELL) {
 			return $this->_execute_by_shell($this->file($this->version, $direction));
 		} else {
-			return $this->_execute_by_explode($sql);
+			echo $sql;
+            return $this->_execute_by_explode($sql);
 		}
 	}
 

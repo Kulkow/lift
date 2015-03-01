@@ -5,7 +5,7 @@
 	array(':tbl' => Simple_Migration::get_table_name()))?>
 </p>
 <p>
-	<a href="<?=URL::base()?>simple_migrations/uninstall/continue" class="btn btn-danger">
+	<a href="<?=URL::base()?>migrate/uninstall/continue" class="btn btn-danger">
 		<?=__('Uninstall the module')?>
 	</a>
 </p>

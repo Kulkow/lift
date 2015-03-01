@@ -8,7 +8,7 @@
 	<meta name="author" content="Ando Roots">
 
 	<!-- Le styles, in naive hopes that Bootstrap GitHub stays unchanged -->
-	<link href="http://twitter.github.com/bootstrap/assets/css/bootstrap.css" rel="stylesheet">
+	<link href="/media/bootstrap/css/bootstrap.css" rel="stylesheet">
 	<style type="text/css">
 		body {
 			padding-top: 60px;
@@ -19,7 +19,6 @@
 			padding: 9px 0;
 		}
 	</style>
-	<link href="http://twitter.github.com/bootstrap/assets/css/bootstrap-responsive.css" rel="stylesheet">
 
 	<!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
 	<!--[if lt IE 9]>
@@ -37,9 +36,9 @@
 				<span class="icon-bar"></span>
 				<span class="icon-bar"></span>
 			</a>
-			<a class="brand" href="<?=URL::base()?>simple_migrations"><?=__('Simple Migrations')?></a>
+			<a class="brand" href="<?=URL::base()?>migrate"><?=__('Simple Migrations')?></a>
 
-			<form class="navbar-form pull-right" method="post" action="<?=URL::base()?>simple_migrations/migrate">
+			<form class="navbar-form pull-right" method="post" action="<?=URL::base()?>migrate/migrate">
 				<span class="navbar-text"><?=__('Revision version')?>: </span>
 				<input type="text" class="span1" title="<?=__('Database revision version to migrate to')?>" name="revision"
 				       required value="<?=$current->version + 1?>"/>
@@ -48,7 +47,7 @@
 
 			<div class="nav-collapse">
 				<ul class="nav">
-					<li class="active"><a href="<?=URL::base()?>simple_migrations"><?=__('Dash')?></a></li>
+					<li class="active"><a href="<?=URL::base()?>migrate"><?=__('Dash')?></a></li>
 					<li>
 						<a href="https://github.com/anroots/kohana-simple-migrations/wiki" target="_blank">
 							<?=__('Module documentation')?>
@@ -81,7 +80,7 @@
 					<?if (count($migrations)): ?>
 					<? foreach ($migrations as $migration_version): ?>
 						<li>
-							<a href="<?=URL::base()?>simple_migrations/revision/<?=$migration_version?>">
+							<a href="<?=URL::base()?>migrate/revision/<?=$migration_version?>">
 								<?=__('Revision')?> <?=$migration_version?>
 							</a>
 						</li>
@@ -110,7 +109,7 @@
 			':link' => HTML::anchor('https://github.com/anroots/kohana-simple-migrations/wiki', 'GitHub')
 		))?> |
 			<?=__('Licence: LGPL')?> |
-			<a href="<?=URL::base()?>simple_migrations/uninstall" title="<?=__('Deletes the module database table.')?>">
+			<a href="<?=URL::base()?>migrate/uninstall" title="<?=__('Deletes the module database table.')?>">
 				<?=__('Uninstall the module')?>
 			</a>
 		</p>

@@ -24,9 +24,9 @@ return array
 			 * Ports and sockets may be appended to the hostname.
 			 */
 			'hostname'   => 'localhost',
-			'database'   => 'mydatabase',
-			'username'   => 'user',
-			'password'   => 'secret',
+			'database'   => 'lift',
+			'username'   => 'root',
+			'password'   => '',
 			'persistent' => FALSE,
 		),
 		'table_prefix' => '',
@@ -35,6 +35,35 @@ return array
 		'profiling'    => FALSE,
 
 		// Enables the use of migrations
+		'migrations'    => TRUE,
+
+		/**
+		 * The method to use when running database migrations
+		 *
+		 * Possible values (defaults to 1)
+		 *
+		 * 1 - Use UNIX shell (PHP exec function, mysql shell command) to load the database .sql file
+		 * 2 - Explode the file using ';' characters as delimiters and run each command separately (not implemented yet)
+		 */
+		'migration_method' => 1
+	),
+    'postgresql' => array
+	(
+		'type'       => 'PostgreSQL',
+		'connection' => array(
+			'hostname'   => 'localhost',
+			'username'   => 'postgres',
+			'password'   => '',
+			'persistent' => FALSE,
+			'database'   => 'lift',
+		),
+		'primary_key'  => '',   // Column to return from INSERT queries, see #2188 and #2273
+		'schema'       => '',
+		'table_prefix' => '',
+		'charset'      => 'utf8',
+		'caching'      => FALSE,
+        
+        // Enables the use of migrations
 		'migrations'    => TRUE,
 
 		/**
