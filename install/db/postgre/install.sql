@@ -82,7 +82,7 @@ INSERT INTO  site  ( id ,  name ,  logo ,  slogan ,  brief ,  content ,  keyword
 
 CREATE TABLE roles
 (
-  id serial PRIMARY KEY,
+  id SERIAL PRIMARY KEY,
   "name" varchar(32) NOT NULL UNIQUE,
   description text NOT NULL
 );
@@ -114,12 +114,12 @@ CREATE TABLE users
 );
 
 INSERT INTO  users  ( id ,  login ,  email ,  phone ,  name ,  address ,  password ,  created ,  logins ,  last_login ,  active_time ) VALUES
-(3, 'admin', 'scorp1785@mail.ru', '+79374353527', 'Кульков Игорь', 'г. Пенза, ул. Гагарина, 16', '671728946c25115dfb7ac934d2dae387b5f45da2fad065fadb960ecbec597948', 1378369661, 66, 1424198481, NULL),
+(3, 'admin', 'scorp1785@mail.ru', '+79374353527', 'Кульков Игорь', 'г. Пенза, ул. Гагарина, 16', '671728946c25115dfb7ac934d2dae387b5f45da2fad065fadb960ecbec597948', 1378369661, 69, 1425146904, NULL),
 (4, 'guest', 'guest@guest.guest', 'guest', 'guest', 'guest', '', NULL, 0, NULL, NULL);
 
 CREATE TABLE user_tokens
 (
-  id serial PRIMARY KEY,
+  id SERIAL PRIMARY KEY,
   user_id integer NOT NULL,
   user_agent varchar NOT NULL,
   token character varying NOT NULL UNIQUE,
@@ -137,6 +137,4 @@ ALTER TABLE roles_users
 ALTER TABLE user_tokens
   ADD CONSTRAINT user_id_fkey FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE;
 
-INSERT INTO roles (name, description) VALUES ('login', 'Login privileges, granted after account confirmation');
-INSERT INTO roles (name, description) VALUES ('admin', 'Administrative user, has access to everything.');
 
