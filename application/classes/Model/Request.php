@@ -47,6 +47,9 @@ class Model_Request extends ORM {
     		'lift'		=> array(
     			'model'		=> 'lift',
     		),
+            'house'		=> array(
+    			'model'		=> 'house',
+    		),
             'user'		=> array(
     			'model'		=> 'user',
     		),

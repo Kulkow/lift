@@ -4,20 +4,19 @@
  *
  * @author k1785
  */
-class Migrate_Tocken extends Migrate {
+class Migrate_Tocken {
       
-      $tocken = NULL;
-      
-      public function init(){
+     
+      public static function init(){
         
       }
       
-      public function up(){
+      public static function action_up(){
          
          //up 
       }
       
-      public function down(){
+      public static function action_down(){
         
       }
 }

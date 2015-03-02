@@ -312,7 +312,7 @@ class Model_Lift extends ORM {
             $house = $this->house->id; 
         }
         if($house){
-            $lifts = ORM::factory('lift')->where('house_id', '=',$house)->or_where_open()->or_where('status', '=',self::LIFT_FREE)->or_where('status', '=','1')->or_where_close()->order_by('level', 'DESC')->find_all(); 
+            $lifts = ORM::factory('lift')->where('house_id', '=',$house)->or_where_open()->or_where('status', '=',self::LIFT_FREE)->or_where('status', '=',self::LIFT_OPEN)->or_where_close()->order_by('level', 'DESC')->find_all(); 
             foreach($lifts as $_lift){
                 if($_lift->level == $level){
                     return $_lift;
@@ -320,7 +320,9 @@ class Model_Lift extends ORM {
                 $_diff = abs($level - $_lift->level);
                 if($_diff < $diff){
                     $diff = $_diff;
-                    $lift = $_lift;
+                    if($_lift->status == self::LIFT_FREE){
+                        $lift = $_lift;    
+                    }
                 }
             } 
             return  $lift; 
@@ -360,7 +362,10 @@ class Model_Lift extends ORM {
        if(! $this->loaded()){
           return FALSE;
        }
-       $request = ORM::factory('request')->where('lift_id', '=', $this->id)->and_where('status', '!=', 1);
+       if(! $level){
+        return FALSE;
+       }
+       $request = ORM::factory('request')->where('house_id', '=', $this->house->id)->and_where('status', '=', Model_Request::REQUEST_NEW);
        if($level){
           $request = $request->and_where('level', '=', $level);
        }

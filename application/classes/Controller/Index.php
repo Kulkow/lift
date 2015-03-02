@@ -5,8 +5,6 @@ class Controller_Index extends Controller_Layout
     
     public function action_index()
 	{
-       $migrate = Migrate::instance()->install();
-       
        $house = ORM::factory('house', array('level' => 10));
        $first_level_lift = NULL;
        $min_level = NULL;

@@ -45,6 +45,7 @@ class Controller_Request extends Controller_Layout
                 $request = ORM::factory('request');
                 $request->values($post);
                 $request->lift = $lift; // может не важно какой лифт поедет, главное чтобы он приехал
+                $request->house = $lift->house;
                 $request->user = $this->auth_user();
                 
                 $free_lift = $lift->free($_level); //поиск свободных лифтов

@@ -10,11 +10,11 @@
 class Task_Migrate extends Minion_Task {
  
 	public $migrate = NULL;
-    public $id = NULL;
+    public $tocken = NULL;
     
     protected $_options = array(
 		// param name => default value
-		'migrate'   => NULL,
+		'token'   => NULL,
         'action'   => NULL,
 	);
     /**
@@ -25,11 +25,10 @@ class Task_Migrate extends Minion_Task {
 	 */
 	protected function _execute(array $params)
 	{
-		//require_once(__DIR__.'/')
         $this->migrate = Migrate::instance();
-        $id = NULL;
-        if(! empty($params['migrate'])){
-           $this->id = $params['migrate'];
+        $tocken = NULL;
+        if(! empty($params['token'])){
+           $this->token = $params['token'];
         }
         if(! empty($params['action'])){
             $method  = 'action_'.strtolower($params['action']);
@@ -37,8 +36,7 @@ class Task_Migrate extends Minion_Task {
                 $this->$method();
             }
         }
-        Minion_CLI::write('action:'.$params['action'].' - migrate '.$params['migrate']);
-        //$tocken = 
+        Minion_CLI::write('action:'.$params['action'].' - migrate '.$params['token']);
 	}
     
     
@@ -48,20 +46,67 @@ class Task_Migrate extends Minion_Task {
         }
     }
     
-    protected function action_up($ip = NULL){
-        
-    }
-    
-    protected function action_down($ip = NULL){
-        
-    }
     
     protected function action_new(){
-        
+        if($this->migrate){
+            $new_migrate = $this->migrate->getnew();
+            if(! empty($new_migrate)){
+                foreach($new_migrate as $_migrate){
+                   print_r($_migrate);
+                   $up = $this->migrate->up($_migrate['token']);
+                   if(! $up){
+                        Minion_CLI::write('no up migrate '.$_migrate['token']);
+                   } 
+                }
+            } 
+        }
     }
     
-    protected function action_add(){
-        
+    protected function action_up(){
+        if($this->migrate){
+            if($this->token){
+               $up = $this->migrate->up($this->token);
+               if(! $up){
+                    Minion_CLI::write('no up migrate '.$this->token);
+               }else{
+                    Minion_CLI::write('up migrate '.$this->token);
+               }
+            }
+        }
+    }
+    
+    protected function action_down(){
+        if($this->migrate){
+            if($this->token){
+               $down = $this->migrate->down($this->token);
+               if(! $down){
+                    Minion_CLI::write('no up migrate '.$this->token);
+               }else{
+                    Minion_CLI::write('up migrate '.$this->token);
+               }
+            }
+        }
+    }
+    
+    
+    
+    protected function action_create(){
+        if($this->migrate){
+            $token = $this->migrate->_create();
+            if($token){
+                $sample = $this->migrate->default_file();
+                if($sample){
+                    $sample = str_replace('Migrate_Tocken','Migrate_Tocken'.$token,$sample);
+                    $this->migrate->save($token,$sample);
+                    Minion_CLI::write('create migrate '.$token);
+                }else{
+                    Minion_CLI::write('no file default migrate');
+                    $this->migrate->delete($token);
+                    return FALSE; 
+                }
+                
+            }
+        }
     }
     
     protected function action_history(){
