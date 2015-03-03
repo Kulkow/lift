@@ -136,10 +136,11 @@ class Controller_Lift extends Controller_Layout
 		}
         $lift->current = $lift->level; 
         $lift->status = $lift::LIFT_OPEN;
-        $request = $lift->last_request($lift->level);
+        $request = $lift->close_request($lift->level); // зак роем все запросы на этом этаже.
+        /*$request = $lift->last_request($lift->level);
         if($request){
            $request->close();
-        }
+        }*/
         ORM::factory('log')->add_event($this->auth_user, 'open', $lift, array('level' => $lift->level));
         $lift->save();
         if ($this->request->is_ajax()){
