@@ -66,7 +66,7 @@ function Itlift(){
             var o_lift = this;
     		var url = window.location.protocol +'//' + window.location.hostname + '/lift/' + o_lift._id + '/open';  
     		o_lift.post(url,{}, function(json){
-    				self.attr('class','lift open');
+    				self.addClass('open');
     				self.find('.action').removeClass('hidden');
     				self.removeClass('go');
     				o_lift.update({status:2});
@@ -82,7 +82,7 @@ function Itlift(){
     	 },
          close : function(l){
             var self = $(l);
-            self.attr('class','lift');
+            self.removeClass('open').removeClass('go');
             var w = this.options.l_w;
             self.animate({'width':w},300,'linear', function(){
                 $('.action',self).addClass('hidden');
@@ -142,6 +142,9 @@ function liftgo(l, level){
                 o_lift.update({level:level});
                 l.addClass('go');
 				o_lift.close(l);
+            }
+            if(l.hasClass('open')){
+                o_lift.close(l);
             }
             if(o_lift.current != o_lift.level){
                 if(o_lift.level > o_lift.current){

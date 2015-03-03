@@ -38,6 +38,10 @@ class Controller_House extends Controller_Layout
                     $_defender_level = $this->near($defender_level, $_lift->current);
                     $_defender = $defender[$_defender_level];
                     $_lift->add_request($_defender);
+                    $_key = array_search($_defender_level, $defender_level);
+                    if($_key){
+                        unset($defender_level[$_key]);                        
+                    }
                 }
             }
             if($first_level_lift){
