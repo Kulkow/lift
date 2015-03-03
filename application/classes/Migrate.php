@@ -45,6 +45,7 @@ class Migrate{
         // Create the table
 		DB::query(Database::INSERT, $this->get_install_sql())
 			->execute();
+        DB::insert(self::TABLE_NAME, array('token', 'created','updated','status'))->values(array('install', time(), time(), 'new'))->execute();    
 
 		Database::instance()->commit();
 		return TRUE;

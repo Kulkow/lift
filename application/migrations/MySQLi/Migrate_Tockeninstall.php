@@ -4,7 +4,7 @@
  *
  * @author k1785
  */
-class Migrate_Tocken1425322612 extends Migrate {
+class Migrate_Tockeninstall extends Migrate {
       
       
       public static function init(){
