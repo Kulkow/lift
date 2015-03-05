@@ -1,0 +1,32 @@
+.house{position: relative;}
+
+.house .block{position: relative; display: table; border-collapse: collapse; border:3px solid #000;}
+.house .level{position: relative; display: table-row;}
+.house .empty_level{position: relative; display: table-row;height: 50px;}
+.house .level .cell{position: relative; width: 150px; height: 100px; border:1px solid #000; display: table-cell;}
+.house .level .cell.number{vertical-align: middle; text-align: center; font-size: 20px;}
+.house .level .cell.number b{padding: 0 7px;}
+
+.house .lift{position: absolute; right: 10px; bottom:10px; height: 70px; width: 50px; border:2px solid #000;}
+.house .lift.up{border-color: #0679FC;}
+.house .lift.down{border-color: #8704F9;}
+
+/**
+* actions
+*/
+.house .level .actions {position: relative; float: left;}
+.house .level .actions UL{list-style: none outside none; position: relative;}
+.house .level .actions UL LI{display: block; position: relative; list-style: none outside none;}
+.house .level .actions UL LI A{background: url('../images/lift.png') 0 0 no-repeat; width: 30px; height: 30px; display: block; padding: 1px; margin: 5px;}
+
+.house .level .actions .up{background-position: 0 0;}
+.house .level .actions .down{background-position: 0 -32px;}
+
+.house .level .actions .up:hover{background-position: 0 -94px;}
+.house .level .actions .down:hover{background-position: 0 -64px;}
+
+.house .level .actions .up.active{background-position: 0 -128px;}
+.house .level .actions .down.active{background-position: 0 -160px;}
+
+.house .level .actions .up.complete{background-position: 0 -96px;}
+.house .level .actions .down.complete{background-position: 0 -64px;}
