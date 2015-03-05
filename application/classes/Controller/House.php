@@ -33,18 +33,24 @@ class Controller_House extends Controller_Layout
 		$_lifts = ORM::factory('lift')->where('house_id','=',$house)->order_by('level', 'ASC')->find_all();
 		foreach($_lifts as $_lift){
 			$_lift = $_lift->update_status();
+            $defender = FALSE;
             if($_lift->status == $_lift::LIFT_FREE){
                 if($defender_level){
                     $_defender_level = $this->near($defender_level, $_lift->current);
-                    $_defender = $defender[$_defender_level];
-                    $_lift->add_request($_defender);
-                    $_key = array_search($_defender_level, $defender_level);
-                    if($_key){
-                        unset($defender_level[$_key]);                        
+                    if($_defender = Arr::get($defender, $_defender_level, NULL)){
+                        $_lift->add_request($_defender);
+                        ORM::factory('log')->add_event($this->auth_user, 'defender', $_lift, array('level' => $_defender->level));
+                        unset($defender[$_defender_level]);
+                        $_key = array_search($_defender_level, $defender_level);
+                        if($_key){
+                            unset($defender_level[$_key]);                        
+                        }
+                        $defender = TRUE;   
                     }
+                    
                 }
             }
-            if($first_level_lift){
+            if($first_level_lift AND ! $defender){
                 $_l = $_lift->lift(1);
                 if($_l){
                     $_lift = $_l;

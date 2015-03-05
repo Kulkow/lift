@@ -14,5 +14,9 @@ return array(
     'status.open'			    => 'состояние лифта',
     'status.down'			    => 'состояние лифта',
     
+    'status.0'		    	    => 'free',
+    'status.1'      			=> 'lift',
+    'status.2'			     	=> 'open',
+    
     );
 ?>

@@ -48,7 +48,7 @@ function Itlift(){
     		}
     		if(opt.status){
     			_this.self.attr('data-status',opt.status).data('status',opt.status);
-    			_this.self.attr('class','lift ' + opt.status);
+    			//_this.self.attr('class','lift ' + opt.status);
                 _this.status = +opt.status;
     		}
     		if(opt.current){
@@ -61,6 +61,7 @@ function Itlift(){
     		}
     		return _this;
     	},
+        
     	open : function(l){
     		var self = $(l); 
             var o_lift = this;
@@ -134,9 +135,11 @@ function Itpost(url,data, callback){
 }
 
 function liftgo(l, level){
+        
         var lift = new Itlift();
 		var o_lift = lift.init(l);
         /*if(o_lift.status == 0){*/
+        console.log('lift:' + o_lift.current+ '<>'+ o_lift.level+ ':' + level);
         if(1){    
             if(o_lift.level != level){
                 o_lift.update({level:level});
@@ -152,7 +155,7 @@ function liftgo(l, level){
                 }else{
                     var f_level = o_lift.current - 1;
                 }
-                console.log('lift:'+ f_level);
+                
                 var b = o_lift.options.h * (f_level - 1);
                 b = parseInt(b);
                 var d = 100*(b/o_lift.options.speed);
