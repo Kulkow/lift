@@ -39,7 +39,7 @@ class Controller_Lift extends Controller_Layout
 			catch (ORM_Validation_Exception $e){
 				$_REQUEST = Arr::merge($_REQUEST, $values);
 				$errors = $e->errors('lift');
-                print_r($errors);
+                $this->error($errors);
 			}
 		}
 		else{

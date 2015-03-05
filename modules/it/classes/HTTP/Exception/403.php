@@ -10,6 +10,7 @@ class HTTP_Exception_403 extends Kohana_HTTP_Exception_403 {
      */
     public function get_response()
     {
+        Site::ini();
         $content = View::factory('errors/403');
         $view = $this->get_template($content);
  

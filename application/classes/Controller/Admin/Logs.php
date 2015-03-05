@@ -53,11 +53,8 @@ class Controller_Admin_Logs extends Controller_Admin_Layout
             $search = $this->session->get('search', NULL);
             
         }
-        
-       if($field AND $search)
-       {
+       if($field AND $search){
           $this->search = array('field' => $field, 'value' => $search);
-          //$this->users = $this->users->where($field, 'LIKE', $search.'%');
        }
         
         $this->template->bind_global('search_field',$field);
@@ -85,37 +82,8 @@ class Controller_Admin_Logs extends Controller_Admin_Layout
 		$this->template->content = View::factory('admin/logs/index')->bind('logs', $logs)->bind('paging', $paging);
 	}
     
-    
-    public function action_indexs()
-	{
-		if ($total = ORM::factory('log')->count_all())
-		{
-			$per_page = 12;
-            $page = $this->request->param('page', 1);
-			$paging = Paging::make($total, $page, 10, 4, 'admin/logs');
-			$logs = ORM::factory('log')->order_by('created', 'desc')
-				->offset(($page - 1) * $per_page)->limit($per_page)->find_all();
-                
-            /*
-            $page = str_replace('page','',$this->request->param('urlex', 1));
-            $page = $this->request->param('page', 1);
-            $this->users = ODM::factory('user')->find_all()->sort($sorty)->skip(($page - 1) * $per_page)->limit((int) $per_page);
-            $paging = $per_page ? Paging::make($this->users->count(), $page, $per_page, 4, 'users/'.($this->sort ? $this->sort : '')) : NULL;
-            */    
-    	}
-        
-        $filters = Model_Filter::instance('user', array('filters' => array('login', 'phone', 'email'),
-                                          'orders' => array('login', 'phone', 'email'))
-                                          );
-                                 
-		$this->template->content = View::factory('admin/logs/index')->bind('logs', $logs)->bind('paging', $paging);
-	}
-    
-    
-    public static function sort()
-    {
-       $post = $this->request->post();
-       $lift_id = Arr::get($post, 'lift', NULL);
+    public static function sort(){
+       
     }
     
     

@@ -193,23 +193,21 @@ Itrest = function(house, timeout){
 					var c_lift = c_lifts[_id];
                     /*console.log('rest:'+_lift.id + ':s:' +_lift.status);*/
 					if(c_lift.updated != _lift.updated){
-					    console.log(c_lift.updated +'= '+ _lift.updated);
-						c_lift.update(_lift);
-						console.log('update lift '+ c_lift._id);
-                        console.log(_lift);
-                        console.log('s:' +c_lift.status);
-						if(c_lift.status == 1){
-							if(! c_lift.self.hasClass('go')){
-								liftgo(c_lift.self, c_lift.level);
-							}
-						}
-                        if(_lift.status == 0){
-                            c_lift.close(c_lift.self);
-                        }
-                        
-						if(_lift.status != c_lift.status){
-							console.log('update status');
-						}
+						if(! c_lift.self.hasClass('go')){
+                            c_lift.update(_lift);
+    						if(c_lift.status == 1){
+    							if(! c_lift.self.hasClass('go')){
+    								liftgo(c_lift.self, c_lift.level);
+    							}
+    						}
+                            if(_lift.status == 0){
+                                c_lift.close(c_lift.self);
+                            }
+                            
+    						if(_lift.status != c_lift.status){
+    							console.log('update status');
+    						}
+                        }    
 					}
 				}else{
 					console.log('add lift');

@@ -36,44 +36,11 @@ class Model_Lift extends ORM {
                )
       );
     
-    
-    public function rules()
-	{
-		return array(
-			/*'code' => array(
-				array('not_empty'),
-				array('max_length', array(':value', 32)),
-				array(array($this, 'unique'), array('code', ':value')),
-			),*/
-		);
+    public function rules(){
+		return array();
 	}
-    
-    public function filters(){
-		return array(
-			'level' 	=> array(
-				array('intval'),
-			),
-            'status' 	=> array(
-				array('strtolower'),
-			)
-		);
-	}
-    
-    public function active()
-	{
-	   if(! $this->active)
-       {
-          if(! $this->active_time)
-          {
-             return t('card.status.empty');
-          }
-          return t('card.status.active_time', array('active' => date('d.m.Y H:i:s', $this->active_time)));
-       }
-       return t('card.status.active');
-	}
-    
-    public function save(Validation $validation = NULL)
-	{
+   
+    public function save(Validation $validation = NULL){
 		$this->updated = time();
 		return parent::save($validation);
 	}
@@ -105,7 +72,6 @@ class Model_Lift extends ORM {
                 $this->current = 1;
                 $change = TRUE;
             }
-            
 			if($this->current != $this->level AND $this->status != self::LIFT_LIFT){
                   $this->status = self::LIFT_LIFT; // должен ехать вниз
                   $change = TRUE;    
@@ -135,6 +101,7 @@ class Model_Lift extends ORM {
         return FALSE;
     }
     
+    /** Расстояние которое должен проехать лифт */
     public function distance($status = NULL){
         if($this->loaded()){
             return abs(intval($this->level) - intval($this->current));
@@ -154,7 +121,6 @@ class Model_Lift extends ORM {
         $_data = array();
         if($status == self::LIFT_FREE){
            // если лифт свободен, то обновляем этаж - на который ему ехать
-           //$this->status = 'open';
            $this->level = $request->level;
            $this->status = self::LIFT_LIFT;
            // обновим статус лифта
@@ -197,7 +163,6 @@ class Model_Lift extends ORM {
     			}
                $lift = $free->as_array();
                return $lift;  
-               //return $free->add_request($request);
             }
         }
         $lift = $this->as_array();
@@ -253,6 +218,7 @@ class Model_Lift extends ORM {
 		
     /**
     * Обновляет запрос на этом этаже
+    * не используется
     */
     public function update_request($level, $status = NULL){
         if($this->loaded()){
@@ -346,7 +312,7 @@ class Model_Lift extends ORM {
             $house = $this->house->id; 
         }
         if($house){
-            $lifts = ORM::factory('lift')->where('house_id', '=',$house)->or_where_open()->or_where('status', '=',self::LIFT_FREE)->or_where('status', '=','1')->or_where_close()->order_by('level', 'DESC')->find_all(); 
+            $lifts = ORM::factory('lift')->where('house_id', '=',$house)->or_where_open()->or_where('status', '=',self::LIFT_FREE)->or_where('status', '=',self::LIFT_OPEN)->or_where_close()->order_by('level', 'DESC')->find_all(); 
             foreach($lifts as $_lift){
                 if($_lift->level == $level){
                     return $_lift;
@@ -354,7 +320,9 @@ class Model_Lift extends ORM {
                 $_diff = abs($level - $_lift->level);
                 if($_diff < $diff){
                     $diff = $_diff;
-                    $lift = $_lift;
+                    if($_lift->status == self::LIFT_FREE){
+                        $lift = $_lift;    
+                    }
                 }
             } 
             return  $lift; 
@@ -394,14 +362,10 @@ class Model_Lift extends ORM {
        if(! $this->loaded()){
           return FALSE;
        }
-       /*
-       $request = DB::query(Database::SELECT, 'SELECT `id` FROM `request` WHERE `lift_id`=:lift AND status !=:status ORDER BY created ASC LIMIT 1')
-            ->param(':lift', $this->id)
-            ->param(':status', 1);
-       $rows = $request->execute();
-       $row = $rows->current();
-       $request_id = Arr::get($row,'id', FALSE);*/
-       $request = ORM::factory('request')->where('lift_id', '=', $this->id)->and_where('status', '!=', 1);
+       if(! $level){
+        return FALSE;
+       }
+       $request = ORM::factory('request')->where('house_id', '=', $this->house->id)->and_where('status', '=', Model_Request::REQUEST_NEW);
        if($level){
           $request = $request->and_where('level', '=', $level);
        }

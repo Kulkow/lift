@@ -45,6 +45,7 @@ class Controller_Request extends Controller_Layout
                 $request = ORM::factory('request');
                 $request->values($post);
                 $request->lift = $lift; // может не важно какой лифт поедет, главное чтобы он приехал
+                $request->house = $lift->house;
                 $request->user = $this->auth_user();
                 
                 $free_lift = $lift->free($_level); //поиск свободных лифтов
@@ -59,14 +60,6 @@ class Controller_Request extends Controller_Layout
                   $l  = NULL;
                   ORM::factory('log')->add_event($this->auth_user, 'defender', $request, array('level' => $request->level));
                 }
-                /*
-                $diff_level = abs($free_lift->current - $_level);
-                $diff_level_current = abs($lift->current - $_level);
-                if($diff_level < $diff_level_current){
-                   $lift =  $free_lift;
-                }*/
-                
-                
                 ORM::factory('log')->add_event($this->auth_user, 'request', $lift, array('level' => $request->level));
                 $l = $lift->add_request($request); // обновим статус лифта
                 if ($this->request->is_ajax()){
@@ -93,6 +86,5 @@ class Controller_Request extends Controller_Layout
         if (! $this->request->is_ajax()){
 		  $this->template->content = View::factory('admin/lift/edit')->bind('errors', $errors);
         }
-       //$this->action_edit();
 	}
 }

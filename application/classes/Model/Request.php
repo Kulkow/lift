@@ -17,8 +17,7 @@ class Model_Request extends ORM {
     * number - номер лифта в доме. 
     */
     
-    public function __construct($id = NULL)
-	{
+    public function __construct($id = NULL){
 		parent::__construct($id);
 		if (mt_rand(1, 100) === 1)
 		{
@@ -48,48 +47,23 @@ class Model_Request extends ORM {
     		'lift'		=> array(
     			'model'		=> 'lift',
     		),
+            'house'		=> array(
+    			'model'		=> 'house',
+    		),
             'user'		=> array(
     			'model'		=> 'user',
     		),
     );
         
-    /*protected $_has_many = array(
-          'requests'    => array(
-                   'model'       => 'request',
-                   'foreign_key' => 'request_id',
-               )
-      );
-    */
-    
-    public function rules()
-	{
-		return array(
-			/*'code' => array(
-				array('not_empty'),
-				array('max_length', array(':value', 32)),
-				array(array($this, 'unique'), array('code', ':value')),
-			),*/
-		);
-	}
-    
-    public function filters(){
-		return array(
-			'level' 	=> array(
-				array('intval'),
-			),
-            'status' 	=> array(
-				array('strtolower'),
-			),
-		);
+    public function rules(){
+		return array();
 	}
     
     public function filter(){
         $this->created = time();
         $this->ip = Request::$client_ip;
-		//return parent::filters();
         return $this;
 	}
-    
     
     public function close(){
         if($this->loaded()){
@@ -98,8 +72,5 @@ class Model_Request extends ORM {
         }
         return FALSE;
     }
-    
-
-
 }
  
