@@ -63,29 +63,31 @@ function Itlift(){
     	},
         
     	open : function(l){
-    		var self = $(l); 
+	    console.log('open');
+    	    var self = $(l); 
             var o_lift = this;
     		var url = window.location.protocol +'//' + window.location.hostname + '/lift/' + o_lift._id + '/open';  
     		o_lift.post(url,{}, function(json){
-    				self.addClass('open');
-    				self.find('.action').removeClass('hidden');
-    				self.removeClass('go');
-    				o_lift.update({status:2});
-    				var w = o_lift.options.l_w + 30;
-    				self.animate({'width':w},300,'linear', function(){
-    					$('.action .l',l).removeClass('a');
-    				});
-    				/*var _level = $('#level_'+ o_lift.level).find('A[data-lift='+o_lift._id+']');*/
+		    self.addClass('open');
+		    o_lift.update({status:2});
+		    var w = o_lift.options.l_w + 30;
+		    self.stop().animate({'width':w},300,'linear', function(){
+			console.log('animamte');
+			$('.action .l',l).removeClass('a');
+			self.find('.action').removeClass('hidden');
+			self.removeClass('go');
+		    });
+		    /*var _level = $('#level_'+ o_lift.level).find('A[data-lift='+o_lift._id+']');*/
                     var _level = $('#level_'+ o_lift.level).find('.actions A');
-    				_level.removeClass('active');
-    			}
-    		)
+		    _level.removeClass('active');
+	        })
     	 },
          close : function(l){
+	    console.log('close');
             var self = $(l);
             self.removeClass('open').removeClass('go');
             var w = this.options.l_w;
-            self.animate({'width':w},300,'linear', function(){
+            self.stop().animate({'width':w},300,'linear', function(){
                 $('.action',self).addClass('hidden');
                 $('.action .l',l).removeClass('a');
             });
@@ -102,7 +104,6 @@ function Itlift(){
             var text = '';
             for(var _log in _logs){
                 text +=  _log + '-' +_logs[_log];
-                //console.log(text); 
             }
             $('#logs .wrapper').append('<div class="log">'+text+'</div>');
         },
@@ -143,8 +144,8 @@ function liftgo(l, level){
         if(1){    
             if(o_lift.level != level){
                 o_lift.update({level:level});
-                l.addClass('go');
-				o_lift.close(l);
+                l.addClass('go').removeClass('free');
+		o_lift.close(l);
             }
             if(l.hasClass('open')){
                 o_lift.close(l);
@@ -160,7 +161,7 @@ function liftgo(l, level){
                 b = parseInt(b);
                 var d = 100*(b/o_lift.options.speed);
                 d = parseInt(d);   
-                l.animate({bottom:b}, d,'linear', function(){
+                l.stop().animate({bottom:b}, d,'linear', function(){
                     o_lift = o_lift.init(l);
                     o_lift.update({current:f_level});
                     /*o_lift.setlift(l);*/
@@ -169,9 +170,11 @@ function liftgo(l, level){
                     }, 15);      
                 });
             }else{
-                o_lift.open(l);
-                o_lift.log({lift: o_lift._id, event: 'open'});
-                return;
+		setTimeout(function(){
+		    o_lift.open(l);
+		    o_lift.log({lift: o_lift._id, event: 'open'});
+		    return;
+		},20);
             }
         }else{
             o_lift.log({lift: o_lift._id, event: 'no free'});

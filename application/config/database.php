@@ -9,7 +9,7 @@ return array
                         'hostname'   => 'localhost',
                         'database'   => 'lift',
                         'username'   => 'root',
-                        'password'   => '',
+                        'password'   => '111777',
                         //'port'       => NULL,
                         //'socket'     => NULL
                 ),
