@@ -6,6 +6,10 @@ class Controller_Index extends Controller_Layout
     public function action_index()
 	{
        $house = ORM::factory('house', array('level' => 10));
+       
+       $defender = ORM::factory('request')->defender($house->id);
+       
+       
        $first_level_lift = NULL;
        $min_level = NULL;
        if (ORM::factory('lift')->check_first_level($house->id)){

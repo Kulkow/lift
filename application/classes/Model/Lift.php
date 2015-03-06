@@ -76,6 +76,10 @@ class Model_Lift extends ORM {
                   $this->status = self::LIFT_LIFT; // должен ехать вниз
                   $change = TRUE;    
             }
+            if($this->current == $this->level AND $this->status != self::LIFT_FREE){
+                  $this->status = self::LIFT_FREE; // 
+                  $change = TRUE;    
+            }
 			
             if($change){
                 $this->save();
@@ -369,12 +373,21 @@ class Model_Lift extends ORM {
        if($level){
           $request = $request->and_where('level', '=', $level);
        }
-       $request = $request->order_by('created','ASC')->limit(1)->find();
-       if(! $request->loaded()){
-        return FALSE;
+       $rs = $request->order_by('created','ASC')->find_all();
+       $req_level = [];
+       foreach($rs as $_rs){
+          $req_level[] = $_rs;
        }
-       return $request; 
-    }      
+       return $req_level; 
+    } 
+    
+     public function close_request($level = NULL){
+        if(! $this->loaded() OR ! $level){
+          return FALSE;
+       }
+       $request = ORM::factory('request');
+       DB::update($request->table_name())->set(array('status' => $request::REQUEST_CLOSE))->where('house_id', '=', $this->house->id)->and_where('level' ,'=',$level)->execute();
+     }     
     
    
 }

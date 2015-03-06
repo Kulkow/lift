@@ -48,7 +48,7 @@ function Itlift(){
     		}
     		if(opt.status){
     			_this.self.attr('data-status',opt.status).data('status',opt.status);
-    			_this.self.attr('class','lift ' + opt.status);
+    			//_this.self.attr('class','lift ' + opt.status);
                 _this.status = +opt.status;
     		}
     		if(opt.current){
@@ -61,12 +61,13 @@ function Itlift(){
     		}
     		return _this;
     	},
+        
     	open : function(l){
     		var self = $(l); 
             var o_lift = this;
     		var url = window.location.protocol +'//' + window.location.hostname + '/lift/' + o_lift._id + '/open';  
     		o_lift.post(url,{}, function(json){
-    				self.attr('class','lift open');
+    				self.addClass('open');
     				self.find('.action').removeClass('hidden');
     				self.removeClass('go');
     				o_lift.update({status:2});
@@ -82,7 +83,7 @@ function Itlift(){
     	 },
          close : function(l){
             var self = $(l);
-            self.attr('class','lift');
+            self.removeClass('open').removeClass('go');
             var w = this.options.l_w;
             self.animate({'width':w},300,'linear', function(){
                 $('.action',self).addClass('hidden');
@@ -134,14 +135,19 @@ function Itpost(url,data, callback){
 }
 
 function liftgo(l, level){
+        
         var lift = new Itlift();
 		var o_lift = lift.init(l);
         /*if(o_lift.status == 0){*/
+        console.log('lift:' + o_lift.current+ '<>'+ o_lift.level+ ':' + level);
         if(1){    
             if(o_lift.level != level){
                 o_lift.update({level:level});
                 l.addClass('go');
 				o_lift.close(l);
+            }
+            if(l.hasClass('open')){
+                o_lift.close(l);
             }
             if(o_lift.current != o_lift.level){
                 if(o_lift.level > o_lift.current){
@@ -149,7 +155,7 @@ function liftgo(l, level){
                 }else{
                     var f_level = o_lift.current - 1;
                 }
-                console.log('lift:'+ f_level);
+                
                 var b = o_lift.options.h * (f_level - 1);
                 b = parseInt(b);
                 var d = 100*(b/o_lift.options.speed);

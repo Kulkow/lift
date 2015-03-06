@@ -35,7 +35,7 @@ class Model_Request extends ORM {
 		$expired = time() - 10 * 60;
 		DB::delete($this->_table_name)
 			->where('status', '=', self::REQUEST_CLOSE)
-            ->and_where_open()->and_where('status', '=',self::REQUEST_NEW)->and_where('created', '<',$expired)->and_where_close()
+            ->or_where_open()->where('status', '=',self::REQUEST_NEW)->and_where('created', '<',$expired)->or_where_close()
 			->execute($this->_db);
 
 		return $this;
@@ -71,6 +71,20 @@ class Model_Request extends ORM {
             $this->save();
         }
         return FALSE;
+    }
+    
+    
+    public function defender($house_id = NULL){
+        if(! $house_id){
+            return FALSE;
+        }
+        $request = [];
+        $rs = DB::select('*')->from($this->_table_name)->where('status', '=', self::REQUEST_DEFENDER)
+            ->and_where('house_id', '=', $house_id)->as_object('Model_Request')->execute($this->_db);
+        foreach($rs as $_rs){
+            $request[$_rs->level] = $_rs;
+        }    
+        return $request;
     }
 }
  
