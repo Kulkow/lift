@@ -2,7 +2,7 @@
 
 abstract class Database extends Kohana_Database {
     
-   // public static $default = 'postgresql';
+    public static $default = 'postgresql';
    
    
    public static function type_driver(){

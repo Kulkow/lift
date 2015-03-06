@@ -27,7 +27,7 @@
     It_lift.post(url,{}, function(json){
             self.attr('class','lift open');
             self.find('.action').removeClass('hidden');
-			self.removeClass('go');
+	    self.removeClass('go');
             It_lift.update(self, {status:2});
             var w = It_lift.options.l_w + 30;
             self.animate({'width':w},300,'linear', function(){
@@ -41,11 +41,11 @@
  
  It_lift.close = function(l){
     var self = $(l);
-    self.attr('class','lift');
     var w = It_lift.options.l_w;
     self.animate({'width':w},300,'linear', function(){
-        $('.action .l',l).addClass('hidden');
-        $('.action',l).removeClass('a');
+        $('.action .l',self).addClass('hidden');
+        $('.action',self).removeClass('a');
+        self.removeClass('open');
     });
  } 
  

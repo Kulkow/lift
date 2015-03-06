@@ -40,14 +40,14 @@ class Migrate{
 			throw new Kohana_Exception('migration module is already installed!');
 		}
 
-		Database::instance()->begin();
+		//Database::instance()->begin();
 
         // Create the table
 		DB::query(Database::INSERT, $this->get_install_sql())
 			->execute();
         DB::insert(self::TABLE_NAME, array('token', 'created','updated','status'))->values(array('install', time(), time(), 'new'))->execute();    
 
-		Database::instance()->commit();
+		//Database::instance()->commit();
 		return TRUE;
 	}
     
@@ -71,12 +71,12 @@ class Migrate{
             break;
             
             case 'PostgreSQL':
-                return 'CREATE TABLE IF NOT EXISTS `' . self::TABLE_NAME . '` (
-          id SERIAL integer,
-          token varchar(40),
+                return 'CREATE TABLE IF NOT EXISTS ' . self::TABLE_NAME . ' (
+          id SERIAL,
+          token varchar,
           created integer,
-          updated int(10),
-          status varchar(40)
+          updated integer,
+          status varchar
         );';
             break;
         }

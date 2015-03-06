@@ -82,15 +82,18 @@ function Itlift(){
 		    _level.removeClass('active');
 	        })
     	 },
-         close : function(l){
-	    console.log('close');
+         close : function(l, action){
             var self = $(l);
             self.removeClass('open').removeClass('go');
-            var w = this.options.l_w;
-            self.stop().animate({'width':w},300,'linear', function(){
+	    var w = this.options.l_w;
+            /*self.stop().animate({'width':w},300,'linear', function(){
                 $('.action',self).addClass('hidden');
-                $('.action .l',l).removeClass('a');
+                $('.action .l',self).removeClass('a');
             });
+	    */
+	    self.css({'width':w});
+	    $('.action',self).addClass('hidden');
+            $('.action .l',self).removeClass('a');
          },
          error : function(errors) {
             var text = '';
@@ -138,9 +141,9 @@ function Itpost(url,data, callback){
 function liftgo(l, level){
         
         var lift = new Itlift();
-		var o_lift = lift.init(l);
+	var o_lift = lift.init(l);
         /*if(o_lift.status == 0){*/
-        console.log('lift:' + o_lift.current+ '<>'+ o_lift.level+ ':' + level);
+        /*console.log('lift:' + o_lift.current+ '<>'+ o_lift.level+ ':' + level);*/
         if(1){    
             if(o_lift.level != level){
                 o_lift.update({level:level});

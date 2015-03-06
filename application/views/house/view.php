@@ -33,8 +33,6 @@
 </section>
 <div id="logs">
     <div class="wrapper">
-    
-    
     </div>
 </div>
 

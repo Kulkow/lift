@@ -22,8 +22,8 @@ return array
 		'type'       => 'PostgreSQL',
 		'connection' => array(
 			'hostname'   => 'localhost',
-			'username'   => 'postgres',
-			'password'   => '',
+			'username'   => 'lift_user',
+			'password'   => '111777',
 			'persistent' => FALSE,
 			'database'   => 'lift',
 		),
